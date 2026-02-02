@@ -88,6 +88,12 @@ export const adminTranslations = {
         completed: 'Completed',
         client: 'Client',
         actions: 'Actions',
+        back: 'Back',
+        clientInfo: 'Client Information',
+        rentalDetails: 'Rental Details',
+        scooter: 'Scooter',
+        remaining: 'Remaining',
+        saving: 'Saving',
     },
 
     fr: {
@@ -179,6 +185,12 @@ export const adminTranslations = {
         completed: 'Terminé',
         client: 'Client',
         actions: 'Actions',
+        back: 'Retour',
+        clientInfo: 'Informations Client',
+        rentalDetails: 'Détails Location',
+        scooter: 'Scooter',
+        remaining: 'Restant',
+        saving: 'Enregistrement',
     },
 };
 
