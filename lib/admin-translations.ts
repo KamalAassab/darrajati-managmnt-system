@@ -86,6 +86,8 @@ export const adminTranslations = {
         error: 'An error occurred',
         noRentals: 'No rentals found',
         completed: 'Completed',
+        client: 'Client',
+        actions: 'Actions',
     },
 
     fr: {
@@ -175,6 +177,8 @@ export const adminTranslations = {
         error: 'Une erreur s\'est produite',
         noRentals: 'Aucune location trouvée',
         completed: 'Terminé',
+        client: 'Client',
+        actions: 'Actions',
     },
 };
 
