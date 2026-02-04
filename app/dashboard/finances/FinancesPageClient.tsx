@@ -5,13 +5,13 @@ import { createExpense, updateExpense, deleteExpense } from '@/app/actions';
 import { formatMAD } from '@/lib/utils/currency';
 import { Plus, TrendingDown, DollarSign, PieChart, Calendar, X, History, Trash2, Edit } from 'lucide-react';
 import { Expense, DashboardStats } from '@/types/admin';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { ConfirmModal } from '@/components/admin/ConfirmModal';
 
 interface FinancesPageClientProps {
     expenses: Expense[];
     dashboardStats: DashboardStats;
 }
-
-import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 export default function FinancesPageClient({ expenses, dashboardStats }: FinancesPageClientProps) {
     const { t } = useLanguage();
@@ -20,6 +20,21 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
 
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editFormData, setEditFormData] = useState<Expense | null>(null);
+
+
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        type?: 'danger' | 'warning' | 'info' | 'success';
+        confirmText?: string;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+    });
 
     const expensesByCategory = expenses.reduce((acc: Record<string, number>, expense) => {
         const cat = expense.category || 'other';
@@ -40,25 +55,35 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this expense record?')) return;
-
+    const executeDelete = async (id: string) => {
         const result = await deleteExpense(id);
 
         if (!result.success) {
-            alert(result.message || 'Failed to delete expense');
+            setConfirmModal({
+                isOpen: true,
+                title: 'Error',
+                message: result.message || 'Failed to delete expense',
+                type: 'danger',
+                onConfirm: () => setConfirmModal(prev => ({ ...prev, isOpen: false })),
+                confirmText: 'OK'
+            });
         }
     };
 
-    const handleSubmit = async (formData: FormData) => {
-        const actionType = editingId ? 'update' : 'create';
-        const confirmMsg = editingId
-            ? 'Save changes to this expense?'
-            : 'Are you sure you want to log this expense?';
+    const handleDelete = (id: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Expense',
+            message: 'Are you sure you want to delete this expense record? This action cannot be undone.',
+            type: 'danger',
+            confirmText: 'Delete',
+            onConfirm: () => executeDelete(id)
+        });
+    };
 
-        if (!confirm(confirmMsg)) return;
-
+    const executeSubmit = async (formData: FormData) => {
         setIsSubmitting(true);
+        const actionType = editingId ? 'update' : 'create';
 
         let result;
         if (editingId) {
@@ -73,19 +98,42 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
             setEditingId(null);
             setEditFormData(null);
         } else {
-            alert(result.message || `Failed to ${actionType} expense`);
+            setConfirmModal({
+                isOpen: true,
+                title: 'Error',
+                message: result.message || `Failed to ${actionType} expense`,
+                type: 'danger',
+                onConfirm: () => setConfirmModal(prev => ({ ...prev, isOpen: false })),
+                confirmText: 'OK'
+            });
         }
 
         setIsSubmitting(false);
     };
 
+    const handleSubmit = async (formData: FormData) => {
+        const actionType = editingId ? 'Update' : 'Create';
+        const confirmMsg = editingId
+            ? 'Are you sure you want to save changes to this expense?'
+            : 'Are you sure you want to log this expense?';
+
+        setConfirmModal({
+            isOpen: true,
+            title: `${actionType} Expense`,
+            message: confirmMsg,
+            type: 'warning',
+            confirmText: 'Confirm',
+            onConfirm: () => executeSubmit(formData)
+        });
+    };
+
     return (
-        <div className="space-y-10 font-alexandria pb-10">
+        <div className="space-y-10 font-inter pb-10">
 
             <div className="flex justify-between items-end">
                 <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-orange text-glow-orange mb-2">{t('finances')}</p>
-                    <h1 className="text-4xl font-anton tracking-tighter text-white uppercase flex items-center gap-3">
+                    <h1 className="text-4xl font-outfit font-black tracking-tighter text-white uppercase flex items-center gap-3">
                         <DollarSign className="w-8 h-8 text-orange" />
                         {t('finances')}
                     </h1>
@@ -104,7 +152,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                 <div className="glass-panel rounded-3xl p-8 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-3xl rounded-full" />
                     <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">{t('totalRevenue')}</p>
-                    <p className="text-4xl font-anton text-green-500 tracking-tight group-hover:scale-110 origin-left transition-transform duration-500">
+                    <p className="text-4xl font-outfit font-black text-green-500 tracking-tight group-hover:scale-110 origin-left transition-transform duration-500">
                         {formatMAD(dashboardStats.totalRevenue)}
                     </p>
                 </div>
@@ -112,7 +160,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                 <div className="glass-panel rounded-3xl p-8 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 blur-3xl rounded-full" />
                     <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">{t('totalExpenses')}</p>
-                    <p className="text-4xl font-anton text-red-500 tracking-tight group-hover:scale-110 origin-left transition-transform duration-500">
+                    <p className="text-4xl font-outfit font-black text-red-500 tracking-tight group-hover:scale-110 origin-left transition-transform duration-500">
                         {formatMAD(dashboardStats.totalExpenses)}
                     </p>
                 </div>
@@ -120,7 +168,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                 <div className="glass-panel rounded-3xl p-8 relative overflow-hidden group orange-glow-border">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-orange/5 blur-3xl rounded-full" />
                     <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">{t('netProfit')}</p>
-                    <p className={`text-4xl font-anton tracking-tight group-hover:scale-110 origin-left transition-transform duration-500 ${dashboardStats.netProfit >= 0 ? 'text-orange text-glow-orange' : 'text-red-500'
+                    <p className={`text-4xl font-outfit font-black tracking-tight group-hover:scale-110 origin-left transition-transform duration-500 ${dashboardStats.netProfit >= 0 ? 'text-orange text-glow-orange' : 'text-red-500'
                         }`}>
                         {formatMAD(dashboardStats.netProfit)}
                     </p>
@@ -131,7 +179,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
             {showForm && (
                 <div className="glass-panel rounded-3xl p-8 orange-glow-border animate-in fade-in slide-in-from-top-4 duration-500">
                     <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-2xl font-anton tracking-tighter text-white uppercase">
+                        <h2 className="text-2xl font-outfit font-black tracking-tighter text-white uppercase">
                             {editingId ? 'Edit Expense' : 'Add New Expense'}
                         </h2>
                         <button onClick={() => setShowForm(false)} className="text-white/20 hover:text-white transition-colors cursor-pointer">
@@ -216,12 +264,23 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                 </div>
             )}
 
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                type={confirmModal.type}
+                confirmText={confirmModal.confirmText}
+            />
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Expenses by Category */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="flex items-center gap-3">
                         <PieChart className="w-5 h-5 text-red-500" />
-                        <h2 className="text-2xl font-anton tracking-tighter text-white uppercase">Expenses by Category</h2>
+                        <h2 className="text-2xl font-outfit font-black tracking-tighter text-white uppercase">Expenses by Category</h2>
                     </div>
 
                     <div className="glass-panel rounded-3xl p-6 space-y-4">
@@ -232,7 +291,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500/50 group-hover:bg-red-500 transition-colors" />
                                         <p className="text-xs font-bold text-white/60 uppercase tracking-widest capitalize">{category}</p>
                                     </div>
-                                    <p className="text-lg font-anton text-white tracking-tight">{formatMAD(amount)}</p>
+                                    <p className="text-lg font-outfit font-black text-white tracking-tight">{formatMAD(amount)}</p>
                                 </div>
                             ))
                         ) : (
@@ -245,7 +304,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                 <div className="lg:col-span-2 space-y-6">
                     <div className="flex items-center gap-3">
                         <History className="w-6 h-6 text-white/20" />
-                        <h2 className="text-2xl font-anton tracking-tighter text-white uppercase">Recent Expenses</h2>
+                        <h2 className="text-2xl font-outfit font-black tracking-tighter text-white uppercase">Recent Expenses</h2>
                     </div>
 
                     <div className="glass-panel rounded-3xl overflow-hidden relative">
@@ -277,7 +336,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                                             <td className="py-5 px-6 text-sm text-white/50 italic max-w-[200px] truncate" title={expense.description}>
                                                 {expense.description}
                                             </td>
-                                            <td className="py-5 px-8 text-right font-anton text-red-500 tracking-tight text-lg">{formatMAD(expense.amount)}</td>
+                                            <td className="py-5 px-8 text-right font-outfit font-black text-red-500 tracking-tight text-lg">{formatMAD(expense.amount)}</td>
                                             <td className="py-5 px-8 text-right">
                                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button
@@ -305,7 +364,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                         {expenses.length === 0 && (
                             <div className="text-center py-24">
                                 <TrendingDown className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                                <h3 className="text-xl font-anton tracking-tighter text-white uppercase">No Expenses Found</h3>
+                                <h3 className="text-xl font-outfit font-black tracking-tighter text-white uppercase">No Expenses Found</h3>
                                 <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">Add your first expense to see analytics</p>
                             </div>
                         )}

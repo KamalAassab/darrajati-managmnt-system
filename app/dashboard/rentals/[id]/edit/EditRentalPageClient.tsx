@@ -115,7 +115,7 @@ export default function EditRentalPageClient({
                             >
                                 {scooters.map((scooter) => (
                                     <option key={scooter.id} value={scooter.id} className="bg-[#111]">
-                                        {scooter.name} ({scooter.plate})
+                                        {scooter.name}
                                     </option>
                                 ))}
                             </select>

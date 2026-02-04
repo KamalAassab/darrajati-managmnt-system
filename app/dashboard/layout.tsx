@@ -3,10 +3,12 @@
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { LanguageSwitcher } from '@/components/admin/LanguageSwitcher';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
+import { SessionTimeout } from '@/components/auth/session-timeout';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
         <LanguageProvider>
+            <SessionTimeout />
             <DashboardContent>
                 {children}
             </DashboardContent>
@@ -16,7 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex h-screen bg-black relative font-poppins overflow-hidden">
+        <div className="flex h-screen bg-black relative font-inter overflow-hidden">
             {/* Ambient Background Lights */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-orange/[0.03] blur-[150px] rounded-full pointer-events-none z-0" />
             <div className="absolute inset-0 bg-cyber-grid opacity-10 pointer-events-none z-0" />

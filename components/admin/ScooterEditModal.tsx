@@ -27,9 +27,7 @@ export function ScooterEditModal({ scooter, isOpen, onClose }: ScooterEditModalP
         String(scooter.engine).toLowerCase().includes('w');
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [featuresEn, setFeaturesEn] = useState(scooter.features?.en.join(', ') || '');
-    const [featuresFr, setFeaturesFr] = useState(scooter.features?.fr.join(', ') || '');
-    const [featuresAr, setFeaturesAr] = useState(scooter.features?.ar.join(', ') || '');
+
 
     if (!isOpen) return null;
 
@@ -38,12 +36,6 @@ export function ScooterEditModal({ scooter, isOpen, onClose }: ScooterEditModalP
         setIsSubmitting(true);
 
         const formData = new FormData(e.currentTarget);
-        // Append features logic
-        // The basic inputs will be handled by name attributes.
-        // We just need to make sure the features are passed correctly.
-        // The server action expects them as comma separated strings or JSON strings if we handle them there.
-        // Let's rely on the inputs being submitted as is, but we might need to manually ensure they are sent if they are controlled components but here they are just inputs.
-        // Actually since we use controlled state for textareas/inputs for better UX, they will be in the form submission if they have name attribute.
 
         const result = await updateScooter(scooter.id, formData);
 
@@ -79,10 +71,7 @@ export function ScooterEditModal({ scooter, isOpen, onClose }: ScooterEditModalP
                                 <input name="name" defaultValue={scooter.name} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange/50 transition-colors" />
                             </div>
 
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">{t('licensePlate')}</label>
-                                <input name="plate" defaultValue={scooter.plate} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange/50 transition-colors" />
-                            </div>
+
 
                             <div>
                                 <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">{t('dailyPrice')}</label>
@@ -134,51 +123,6 @@ export function ScooterEditModal({ scooter, isOpen, onClose }: ScooterEditModalP
                                     <input name="speed" type="number" min="0" defaultValue={extractNumber(scooter.speed)} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange/50 transition-colors pr-12 appearance-none hide-number-spinner" />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-white/30 pointer-events-none">KM/H</span>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">Last Maintenance</label>
-                                <input name="lastMaintenance" type="date" defaultValue={scooter.lastMaintenance ? new Date(scooter.lastMaintenance).toISOString().split('T')[0] : ''} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange/50 transition-colors" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Descriptions */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-orange mb-2">Descriptions (Multilingual)</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">English</label>
-                                <textarea name="desc.en" defaultValue={scooter.desc.en} rows={3} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-orange/50 transition-colors resize-none" />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">French</label>
-                                <textarea name="desc.fr" defaultValue={scooter.desc.fr} rows={3} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-orange/50 transition-colors resize-none" />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">Arabic</label>
-                                <textarea name="desc.ar" defaultValue={scooter.desc.ar} dir="rtl" rows={3} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-orange/50 transition-colors resize-none" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Features */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-orange mb-2">Features (Comma Separated)</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">English Features</label>
-                                <textarea name="features.en" value={featuresEn} onChange={e => setFeaturesEn(e.target.value)} rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-orange/50 transition-colors resize-none" placeholder="ABS, GPS, storage..." />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">French Features</label>
-                                <textarea name="features.fr" value={featuresFr} onChange={e => setFeaturesFr(e.target.value)} rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-orange/50 transition-colors resize-none" placeholder="ABS, GPS..." />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-white/40 mb-1.5">Arabic Features</label>
-                                <textarea name="features.ar" value={featuresAr} onChange={e => setFeaturesAr(e.target.value)} dir="rtl" rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-orange/50 transition-colors resize-none" placeholder="ABS, GPS..." />
                             </div>
                         </div>
                     </div>

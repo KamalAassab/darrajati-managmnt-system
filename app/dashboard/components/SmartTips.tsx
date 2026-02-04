@@ -10,7 +10,7 @@ export default function SmartTips({ tips }: { tips: string[] }) {
 
             <div className="flex items-center gap-3 mb-6 relative z-10">
                 <Sparkles className="w-6 h-6 text-orange animate-pulse" />
-                <h3 className="text-2xl font-anton tracking-wide text-white uppercase font-normal">AI Insights</h3>
+                <h3 className="text-2xl font-outfit font-black tracking-wide text-white uppercase font-normal">AI Insights</h3>
             </div>
 
             <div className="space-y-4 relative z-10">

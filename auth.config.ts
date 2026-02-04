@@ -20,7 +20,8 @@ export const authConfig = {
 
             // Redirect logged-in users away from login page (root)
             if (isOnLogin && isLoggedIn) {
-                return Response.redirect(new URL('/dashboard', nextUrl));
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : nextUrl.origin);
+                return Response.redirect(new URL('/dashboard', baseUrl));
             }
 
             return true;

@@ -137,7 +137,7 @@ export default function NewRentalPageClient({
                                 <option value="" className="bg-[#111]">{t('selectScooter')}</option>
                                 {availableScooters.map((scooter) => (
                                     <option key={scooter.id} value={scooter.id} className="bg-[#111]">
-                                        {scooter.name} ({scooter.plate}) - {formatMAD(scooter.price)}/day
+                                        {scooter.name} - {formatMAD(scooter.price)}/day
                                     </option>
                                 ))}
                             </select>
@@ -184,6 +184,21 @@ export default function NewRentalPageClient({
                                     }}
                                     className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-medium focus:ring-2 focus:ring-orange/30 outline-none transition-all"
                                     placeholder="0.00"
+                                />
+                                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-bold text-white/20 uppercase tracking-widest">MAD</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium uppercase tracking-widest text-white/40 ml-1">Security Guarantee (Caution)</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    name="guaranteeAmount"
+                                    min="0"
+                                    step="1"
+                                    placeholder="0.00"
+                                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-medium focus:ring-2 focus:ring-orange/30 outline-none transition-all"
                                 />
                                 <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-bold text-white/20 uppercase tracking-widest">MAD</span>
                             </div>
@@ -247,7 +262,7 @@ export default function NewRentalPageClient({
                         {t('cancel')}
                     </Link>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }

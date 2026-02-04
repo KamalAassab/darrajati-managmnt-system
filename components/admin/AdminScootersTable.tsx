@@ -9,24 +9,39 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { ScooterEditModal } from './ScooterEditModal';
 import { StatusSelector } from './StatusSelector';
+import { ConfirmModal } from './ConfirmModal';
 
 interface AdminScootersTableProps {
     scooters: Scooter[];
+    onEdit?: (scooter: Scooter) => void;
 }
 
-export function AdminScootersTable({ scooters }: AdminScootersTableProps) {
+export function AdminScootersTable({ scooters, onEdit }: AdminScootersTableProps) {
     const router = useRouter();
     const { t } = useLanguage();
     const [updating, setUpdating] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [editingScooter, setEditingScooter] = useState<Scooter | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        type?: 'danger' | 'warning' | 'info' | 'success';
+        confirmText?: string;
+        cancelText?: string;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+    });
 
     const filteredScooters = useMemo(() => {
         return scooters.filter(scooter => {
             const matchesSearch =
-                scooter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                scooter.plate.toLowerCase().includes(searchTerm.toLowerCase());
+                scooter.name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesStatus = statusFilter === 'all' || scooter.status === statusFilter;
             return matchesSearch && matchesStatus;
         });
@@ -40,22 +55,64 @@ export function AdminScootersTable({ scooters }: AdminScootersTableProps) {
         if (result.success) {
             router.refresh();
         } else {
-            alert(result.message || 'Failed to update status');
+            setConfirmModal({
+                isOpen: true,
+                title: 'Error',
+                message: result.message || 'Failed to update status',
+                type: 'danger',
+                onConfirm: () => setConfirmModal(prev => ({ ...prev, isOpen: false })),
+                confirmText: 'OK',
+                cancelText: ''
+            });
             console.error('Failed to update status', result.message);
         }
         setUpdating(null);
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this scooter?')) {
-            const result = await deleteScooter(id);
-            if (result.success) {
-                router.refresh();
-            } else {
-                alert(result.message || 'Failed to delete scooter');
-                console.error('Failed to delete scooter', result.message);
+    const handleDelete = (id: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Scooter',
+            message: 'Are you sure you want to delete this scooter? This action cannot be undone.',
+            type: 'danger',
+            confirmText: 'Delete',
+            onConfirm: async () => {
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                const result = await deleteScooter(id);
+                if (result.success) {
+                    router.refresh();
+                } else {
+                    // Check if error is due to rental records
+                    if (result.message?.includes('rental record')) {
+                        setConfirmModal({
+                            isOpen: true,
+                            title: 'Cannot Delete',
+                            message: result.message + '\n\nWould you like to set it to maintenance instead?',
+                            type: 'warning',
+                            confirmText: 'Set to Maintenance',
+                            cancelText: 'Cancel',
+                            onConfirm: async () => {
+                                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                const statusResult = await updateStatusAction(id, 'maintenance');
+                                if (statusResult.success) {
+                                    router.refresh();
+                                }
+                            }
+                        });
+                    } else {
+                        setConfirmModal({
+                            isOpen: true,
+                            title: 'Error',
+                            message: result.message || 'Failed to delete scooter',
+                            type: 'danger',
+                            onConfirm: () => setConfirmModal(prev => ({ ...prev, isOpen: false })),
+                            confirmText: 'OK',
+                            cancelText: ''
+                        });
+                    }
+                }
             }
-        }
+        });
     };
 
     return (
@@ -118,7 +175,7 @@ export function AdminScootersTable({ scooters }: AdminScootersTableProps) {
                                 <div className="absolute right-0 top-full pt-2 opacity-0 group-hover/actions:opacity-100 pointer-events-none group-hover/actions:pointer-events-auto transition-all duration-300 z-30 translate-y-2 group-hover/actions:translate-y-0">
                                     <div className="bg-[#121212] border border-white/10 p-2 rounded-2xl shadow-2xl min-w-[160px]">
                                         <button
-                                            onClick={() => setEditingScooter(scooter)}
+                                            onClick={() => onEdit ? onEdit(scooter) : setEditingScooter(scooter)}
                                             className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/5 rounded-xl transition-colors text-left"
                                         >
                                             <Settings2 className="w-4 h-4 text-orange" /> {t('edit')}
@@ -143,12 +200,7 @@ export function AdminScootersTable({ scooters }: AdminScootersTableProps) {
                                 className="w-[100%] h-[100%] object-contain drop-shadow-2xl transform transition-transform duration-700 group-hover:scale-110 group-hover:-translate-y-4 z-10"
                             />
 
-                            {/* Plate Number - Centered and Large */}
-                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-5 py-2.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-xl group-hover:border-orange/30 transition-colors z-20 shadow-xl">
-                                <span className="font-mono text-xl font-black text-white tracking-[0.3em] uppercase whitespace-nowrap">
-                                    {scooter.plate}
-                                </span>
-                            </div>
+
                         </div>
 
                         {/* Info Section - Bottom aligned */}
@@ -220,6 +272,17 @@ export function AdminScootersTable({ scooters }: AdminScootersTableProps) {
                     />
                 )
             }
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                type={confirmModal.type}
+                confirmText={confirmModal.confirmText}
+                cancelText={confirmModal.cancelText}
+            />
         </div >
     );
 }

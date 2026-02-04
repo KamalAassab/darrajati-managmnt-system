@@ -12,10 +12,19 @@ export async function handleActionError(error: unknown): Promise<ActionState<any
     console.error('Action Error:', error);
 
     if (error instanceof z.ZodError) {
+        // Convert Zod errors to dot notation for nested paths
+        const fieldErrors: Record<string, string[]> = {};
+        for (const issue of error.issues) {
+            const path = issue.path.join('.');
+            if (!fieldErrors[path]) {
+                fieldErrors[path] = [];
+            }
+            fieldErrors[path].push(issue.message);
+        }
         return {
             success: false,
             message: 'Validation failed',
-            fieldErrors: error.flatten().fieldErrors as Record<string, string[]>,
+            fieldErrors,
         };
     }
 

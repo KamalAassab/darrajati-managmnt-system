@@ -1,26 +1,20 @@
 import type { Metadata } from 'next';
-import { Anton, Poppins, Alexandria } from 'next/font/google';
+import { Outfit, Inter } from 'next/font/google';
 import 'flag-icons/css/flag-icons.min.css';
 import './globals.css';
 
-const anton = Anton({
-    weight: '400',
+const outfit = Outfit({
     subsets: ['latin'],
-    variable: '--font-anton',
+    variable: '--font-outfit',
+    weight: ['300', '400', '500', '600', '700', '800', '900'],
     display: 'swap',
-    preload: true,
 });
 
-const poppins = Poppins({
+const inter = Inter({
     subsets: ['latin'],
-    variable: '--font-poppins',
-    weight: ['400', '500', '600', '700'],
-});
-
-const alexandria = Alexandria({
-    subsets: ['latin', 'arabic'],
-    variable: '--font-alexandria',
-    weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+    variable: '--font-inter',
+    weight: ['300', '400', '500', '600', '700', '800', '900'],
+    display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -46,8 +40,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" dir="ltr">
-            <body suppressHydrationWarning className={`${poppins.variable} ${anton.variable} ${alexandria.variable} font-poppins bg-black text-white min-h-screen overflow-x-hidden`}>
+        <html lang="en" dir="ltr" className="scroll-smooth">
+            <body suppressHydrationWarning className={`${inter.variable} ${outfit.variable} font-inter bg-black text-white min-h-screen overflow-x-hidden antialiased`}>
                 {children}
             </body>
         </html>

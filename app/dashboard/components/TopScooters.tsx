@@ -7,7 +7,7 @@ export default function TopScooters({ scooters }: { scooters: any[] }) {
         <div className="glass-panel rounded-3xl p-6 h-full border-white/[0.05]">
             <div className="flex items-center gap-3 mb-6">
                 <Trophy className="w-6 h-6 text-yellow-500" />
-                <h3 className="text-2xl font-anton tracking-wide text-white uppercase font-normal">Top Performers</h3>
+                <h3 className="text-2xl font-outfit font-black tracking-wide text-white uppercase font-normal">Top Performers</h3>
             </div>
 
             <div className="space-y-3">
@@ -15,7 +15,7 @@ export default function TopScooters({ scooters }: { scooters: any[] }) {
                     <div key={scooter.id} className="group flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.05] transition-colors border border-white/[0.02] hover:border-white/10">
                         <div className="flex items-center gap-4">
                             <div className={`
-                                w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold font-anton
+                                w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold font-outfit font-black
                                 ${index === 0 ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30' :
                                     index === 1 ? 'bg-white/10 text-white/80 border border-white/20' :
                                         index === 2 ? 'bg-orange/10 text-orange/80 border border-orange/20' :
@@ -27,9 +27,7 @@ export default function TopScooters({ scooters }: { scooters: any[] }) {
                                 <h4 className="text-base font-bold text-white uppercase tracking-tight group-hover:text-orange transition-colors">
                                     {scooter.name}
                                 </h4>
-                                <span className="text-xs text-white/40 font-mono tracking-wider font-bold">
-                                    {scooter.plate}
-                                </span>
+
                             </div>
                         </div>
                         <div className="text-right">

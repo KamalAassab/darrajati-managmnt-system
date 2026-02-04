@@ -12,19 +12,7 @@ export const scooterSchema = z.object({
     engine: z.coerce.number().int().positive('Engine must be a positive integer (CC)'),
     speed: z.coerce.number().int().positive('Speed must be a positive integer (KM/H)'),
     price: z.coerce.number().int().positive('Price must be a positive integer'),
-    plate: z.string().min(2, 'License plate required'),
     status: z.enum(['available', 'rented', 'maintenance']),
-    lastMaintenance: z.string(),
-    desc: z.object({
-        en: z.string().min(10, 'English description must be at least 10 characters'),
-        fr: z.string().min(10, 'French description must be at least 10 characters'),
-        ar: z.string().min(10, 'Arabic description must be at least 10 characters'),
-    }),
-    features: z.object({
-        en: z.array(z.string()),
-        fr: z.array(z.string()),
-        ar: z.array(z.string()),
-    }).optional(),
 });
 
 // Client Schema

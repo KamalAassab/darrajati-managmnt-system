@@ -19,78 +19,26 @@ html {
 }
 
 body {
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 400;
   position: relative;
-  font-size: 15px;
+  font-size: 16px;
+  /* Increased from 15px */
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Respect user's motion preferences */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Touch optimization */
-@layer utilities {
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Hide number input spinners */
-  .hide-number-spinner::-webkit-inner-spin-button,
-  .hide-number-spinner::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .hide-number-spinner {
-    -moz-appearance: textfield;
-  }
-}
-
-:root {
-  --orange: #ff710b;
-  --orange-dark: #e56000;
-}
-
-[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
-}
-
-[dir="rtl"] .rtl\:flex-row-reverse {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .rtl\:space-x-reverse> :not([hidden])~ :not([hidden]) {
-  --tw-space-x-reverse: 1;
-}
-
-/* Arabic specific styles */
-[dir="rtl"] .font-anton {
-  font-family: var(--font-alexandria), sans-serif;
-  font-weight: 800;
-}
-
-[dir="rtl"] body {
-  font-family: var(--font-alexandria), sans-serif;
-}
-
-/* Ensure proper text alignment in RTL for form inputs */
-[dir="rtl"] input,
-[dir="rtl"] textarea {
-  text-align: right;
-  direction: rtl;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-anton {
+  font-family: var(--font-outfit), sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 /* Hide scrollbar for all browsers */
@@ -104,32 +52,6 @@ body {
 *::-webkit-scrollbar {
   display: none;
   /* Chrome, Safari, Opera */
-}
-
-/* RTL-specific utilities */
-[dir="rtl"] .rtl\:text-right {
-  text-align: right;
-}
-
-[dir="rtl"] .rtl\:text-left {
-  text-align: left;
-}
-
-[dir="rtl"] .rtl\:right-auto {
-  right: auto;
-}
-
-[dir="rtl"] .rtl\:left-auto {
-  left: auto;
-}
-
-[dir="rtl"] .rtl\:translate-x-0 {
-  transform: translateX(0);
-}
-
-[dir="rtl"] .rtl\:space-x-reverse>*+* {
-  margin-left: 0;
-  margin-right: var(--tw-space-x-reverse, 0);
 }
 
 /* Flag icons with rounded corners */

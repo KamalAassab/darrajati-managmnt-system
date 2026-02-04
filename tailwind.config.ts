@@ -39,9 +39,9 @@ const config: Config = {
                 },
             },
             fontFamily: {
-                anton: ['var(--font-anton)', 'sans-serif'],
-                poppins: ['var(--font-poppins)', 'sans-serif'],
-                alexandria: ['var(--font-alexandria)', 'sans-serif'],
+                outfit: ['var(--font-outfit)', 'sans-serif'],
+                inter: ['var(--font-inter)', 'sans-serif'],
+                anton: ['var(--font-outfit)', 'sans-serif'], // Map legacy anton to outfit
             },
             animation: {
                 marquee: 'marquee var(--duration) linear infinite',

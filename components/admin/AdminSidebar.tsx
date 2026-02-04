@@ -10,7 +10,7 @@ import {
     DollarSign,
     LogOut
 } from 'lucide-react';
-import { logout } from '@/app/actions/auth';
+import { logout } from '@/app/actions';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 export function AdminSidebar() {
@@ -29,7 +29,7 @@ export function AdminSidebar() {
         <aside className="w-72 glass-panel-dark border-r border-white/5 h-screen flex flex-col relative">
             <div className="p-8 pb-4">
                 <Link href="/dashboard" prefetch={true} className="block">
-                    <h1 className="text-3xl font-anton tracking-tighter text-white uppercase leading-none">
+                    <h1 className="text-3xl font-outfit font-black tracking-tighter text-white uppercase leading-none">
                         Darrajati <span className="text-orange text-glow-orange block text-xl">Admin Panel</span>
                     </h1>
                 </Link>

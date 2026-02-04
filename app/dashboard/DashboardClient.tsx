@@ -1,7 +1,7 @@
 'use client';
 
 import { KPICard } from '@/components/admin/KPICard';
-import { formatMAD, isOverdue } from '@/lib/utils/currency';
+import { formatMAD, isOverdue, formatDate } from '@/lib/utils/currency';
 import { TrendingUp, Calendar, AlertTriangle, ChevronRight, Activity, Wallet, PieChart } from 'lucide-react';
 import Link from 'next/link';
 import AnalyticsChart from './components/AnalyticsChart';
@@ -28,7 +28,7 @@ export default function DashboardClient({
         <div className="space-y-6 pb-10">
             {/* Header */}
             <div>
-                <h1 className="text-4xl font-anton tracking-wide text-white uppercase flex items-center gap-3 font-normal">
+                <h1 className="text-4xl font-outfit tracking-wide text-white uppercase flex items-center gap-3 font-normal">
                     <Activity className="w-8 h-8 text-orange" />
                     {t('dashboard')}
                 </h1>
@@ -36,36 +36,41 @@ export default function DashboardClient({
 
             {/* Overdue Alerts */}
             {overdueRentals.length > 0 && (
-                <div className="glass-panel-dark rounded-2xl p-5 border-red-500/20 relative group overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-bl-full -mr-10 -mt-10 blur-2xl" />
+                <div className="bg-red-500/[0.03] border border-red-500/20 rounded-3xl p-6 relative overflow-hidden shadow-2xl shadow-red-500/[0.02]">
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-red-500/10 rounded-full blur-3xl" />
 
-                    <div className="flex items-start gap-5 relative z-10">
-                        <div className="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
-                            <AlertTriangle className="w-7 h-7 text-red-500" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-anton tracking-tight text-2xl text-white uppercase font-normal">{t('error')}</h3>
-                                <span className="text-red-500 text-xs font-bold px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 uppercase tracking-[0.2em]">
-                                    {overdueRentals.length} {t('overdueRentals')}
-                                </span>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 relative z-10">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20">
+                                <AlertTriangle className="w-7 h-7 text-white" />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {overdueRentals.map((rental) => (
-                                    <div key={rental.id} className="bg-black/20 border border-white/10 rounded-xl p-4 flex justify-between items-center hover:border-red-500/30 transition-colors group/item">
-                                        <div className="space-y-1">
-                                            <p className="text-base font-bold text-white">{rental.client.fullName}</p>
-                                            <p className="text-xs uppercase font-bold text-white/40 tracking-wider group-hover/item:text-orange transition-colors">
-                                                {rental.scooter.name}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xs uppercase font-bold text-red-500 tracking-widest">{rental.endDate}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                            <div>
+                                <h3 className="text-2xl font-outfit text-white uppercase tracking-tighter">Action Required</h3>
                             </div>
                         </div>
+                        <div className="flex items-center gap-3">
+                            <span className="px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+                                {overdueRentals.length} {overdueRentals.length === 1 ? 'Unit' : 'Units'} Overdue
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
+                        {overdueRentals.map((rental) => (
+                            <div key={rental.id} className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 hover:bg-white/[0.05] hover:border-red-500/30 transition-all group/item duration-500">
+                                <div className="flex justify-between items-start mb-3">
+                                    <p className="text-base font-bold text-white group-hover/item:text-red-500 transition-colors uppercase tracking-tight">{rental.client.fullName}</p>
+                                    <ChevronRight className="w-4 h-4 text-white/10 group-hover/item:text-red-500 transition-all translate-x-0 group-hover/item:translate-x-1" />
+                                </div>
+                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.15em] mb-4">
+                                    {rental.scooter.name}
+                                </p>
+                                <div className="flex items-center justify-between pt-4 border-t border-white/[0.03]">
+                                    <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Expires</span>
+                                    <span className="text-[11px] font-bold text-red-500/80">{formatDate(rental.endDate)}</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
@@ -121,52 +126,67 @@ export default function DashboardClient({
                 </div>
 
                 {/* Recent Activity */}
-                <div className="lg:col-span-2 glass-panel rounded-3xl p-6 border-white/[0.05]">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-2xl font-anton tracking-wide text-white uppercase font-normal">Live Feed</h3>
-                        <Link href="/dashboard/rentals" className="text-xs font-bold uppercase tracking-widest text-orange hover:text-white transition-colors flex items-center gap-2 group">
-                            View All <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <div className="lg:col-span-2 bg-[#050505] border border-white/[0.03] rounded-[2rem] p-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-orange/5 rounded-full blur-[100px] -mr-32 -mt-32" />
+
+                    <div className="flex justify-between items-center mb-6 relative z-10 px-2">
+                        <div>
+                            <h3 className="text-xl font-outfit tracking-tight text-white uppercase font-bold">Operation Stream</h3>
+                        </div>
+                        <Link href="/dashboard/rentals" className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-orange transition-all flex items-center gap-2 group border border-white/5 px-3 py-1.5 rounded-lg hover:border-orange/30">
+                            {t('viewAll')} <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                         </Link>
                     </div>
 
-                    <div className="overflow-x-auto admin-scrollbar">
-                        <table className="w-full">
+                    <div className="overflow-x-auto admin-scrollbar relative z-10">
+                        <table className="w-full border-separate border-spacing-y-2">
                             <thead>
-                                <tr className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 border-b border-white/10">
-                                    <th className="text-left py-4 pl-4">Client</th>
-                                    <th className="text-left py-4">Scooter</th>
-                                    <th className="text-left py-4">Dates</th>
-                                    <th className="text-right py-4 pr-4">Total</th>
+                                <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
+                                    <th className="text-left pb-2 pl-4">Client / Unit</th>
+                                    <th className="text-left pb-2">Rental Period</th>
+                                    <th className="text-center pb-2">Duration</th>
+                                    <th className="text-right pb-2 pr-4">Finance / Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/[0.04]">
-                                {latestRentals.map((rental) => (
-                                    <tr key={rental.id} className="group hover:bg-white/[0.02] transition-colors">
-                                        <td className="py-4 pl-4">
-                                            <div className="font-bold text-white text-base">{rental.client.fullName}</div>
-                                        </td>
-                                        <td className="py-4">
-                                            <div className="text-sm font-bold text-white/70 uppercase">{rental.scooter.name}</div>
-                                        </td>
-                                        <td className="py-4">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-xs font-mono font-bold text-white/50">{rental.startDate}</span>
-                                                <span className="text-xs font-mono font-bold text-white/50">{rental.endDate}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 pr-4">
-                                            <div className="flex flex-col items-end">
-                                                <span className="font-bold text-orange text-base tracking-tight">{formatMAD(rental.totalPrice)}</span>
-                                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded ${rental.status === 'active' ? 'bg-green-500/10 text-green-500' :
-                                                    rental.status === 'completed' ? 'bg-blue-500/10 text-blue-500' :
-                                                        'bg-white/5 text-white/30'
-                                                    }`}>
-                                                    {rental.status}
+                            <tbody className="divide-y-0">
+                                {latestRentals.map((rental) => {
+                                    const days = Math.ceil((new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+                                    return (
+                                        <tr key={rental.id} className="group transition-all">
+                                            <td className="py-4 pl-4 bg-white/[0.02] rounded-l-2xl border-y border-l border-white/[0.03] group-hover:bg-white/[0.04] group-hover:border-orange/20 transition-all">
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-white text-base tracking-tight group-hover:text-orange transition-colors">{rental.client.fullName}</span>
+                                                    <span className="text-xs font-medium text-white/40 uppercase tracking-tighter mt-0.5">{rental.scooter.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 bg-white/[0.02] border-y border-white/[0.03] group-hover:bg-white/[0.04] group-hover:border-orange/20 transition-all">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold text-white/60 tracking-tighter">{new Date(rental.startDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                                                        <ChevronRight className="w-3 h-3 text-white/10" />
+                                                        <span className="text-xs font-bold text-white/60 tracking-tighter">{new Date(rental.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 bg-white/[0.02] border-y border-white/[0.03] group-hover:bg-white/[0.04] group-hover:border-orange/20 transition-all text-center">
+                                                <span className="inline-flex items-center text-sm font-black text-white/50 uppercase tracking-tight">
+                                                    {days} {days === 1 ? 'Day' : 'Days'}
                                                 </span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                            <td className="py-4 pr-4 bg-white/[0.02] rounded-r-2xl border-y border-r border-white/[0.03] group-hover:bg-white/[0.04] group-hover:border-orange/20 transition-all text-right">
+                                                <div className="flex flex-col items-end">
+                                                    <span className="font-outfit text-white text-base font-bold tracking-tight">{formatMAD(rental.totalPrice)}</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] mt-1 ${rental.status === 'active' ? 'text-green-500' :
+                                                        rental.status === 'completed' ? 'text-blue-500' : 'text-white/20'
+                                                        }`}>
+                                                        {rental.status}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

@@ -9,18 +9,6 @@ export interface Scooter {
     speed: string;
     price: number;
     status: 'available' | 'rented' | 'maintenance';
-    plate: string;
-    lastMaintenance: string;
-    desc: {
-        en: string;
-        fr: string;
-        ar: string;
-    };
-    features?: {
-        en: string[];
-        fr: string[];
-        ar: string[];
-    };
     createdAt: string;
     updatedAt: string;
 }
@@ -35,6 +23,15 @@ export interface Client {
     currentScooter?: string;
     createdAt: string;
     updatedAt: string;
+}
+
+
+export interface RentalPayment {
+    id: string;
+    rentalId: number; // Changed to number to match DB
+    amount: number;
+    date: string;
+    notes?: string;
 }
 
 export interface Rental {
@@ -83,7 +80,6 @@ export interface AnalyticsData {
         name: string;
         revenue: number;
         trips: number;
-        plate: string;
     }[];
     tips: string[];
 }

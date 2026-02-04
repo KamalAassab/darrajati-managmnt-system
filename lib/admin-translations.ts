@@ -27,9 +27,6 @@ export const adminTranslations = {
         available: 'Available',
         rented: 'Rented',
         maintenance: 'Maintenance',
-        lastMaintenance: 'Last Maintenance',
-        description: 'Description',
-        features: 'Features',
 
         // Clients
         addClient: 'Add Client',
@@ -58,6 +55,8 @@ export const adminTranslations = {
         afterPhotos: 'After Photos',
         uploadPhotos: 'Upload Photos',
         notes: 'Notes', // Simplified from Protocol
+        payments: 'Payments',
+        managePayments: 'Manage Payments',
 
         // Expenses
         addExpense: 'Add Expense',
@@ -94,6 +93,7 @@ export const adminTranslations = {
         scooter: 'Scooter',
         remaining: 'Remaining',
         saving: 'Saving',
+        viewAll: 'View All',
     },
 
     fr: {
@@ -120,13 +120,10 @@ export const adminTranslations = {
         dailyPrice: 'Prix Journalier',
         engine: 'Moteur',
         speed: 'Vitesse Max',
-        status: 'État',
-        available: 'Disponible',
-        rented: 'Loué',
+        status: 'Status',
+        available: 'Available',
+        rented: 'Rented',
         maintenance: 'Maintenance',
-        lastMaintenance: 'Dernière Révision',
-        description: 'Description',
-        features: 'Caractéristiques',
 
         // Clients
         addClient: 'Ajouter Client',
@@ -191,6 +188,7 @@ export const adminTranslations = {
         scooter: 'Scooter',
         remaining: 'Restant',
         saving: 'Enregistrement',
+        viewAll: 'Voir Tout',
     },
 };
 

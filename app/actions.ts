@@ -1,6 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { signIn, signOut } from '@/auth';
+import { AuthError } from 'next-auth';
 import { requireAuth } from '@/lib/auth-checks';
 import { sql } from '@/lib/db';
 import { ActionState, handleActionError } from '@/lib/safe-action';
@@ -18,7 +20,7 @@ export async function getScooters(): Promise<Scooter[]> {
     await requireAuth();
 
     const rows = await sql`
-        SELECT * FROM scooters ORDER BY created_at DESC
+        SELECT * FROM scooters ORDER BY created_at ASC
     `;
 
     return rows.map((row: any) => ({
@@ -30,22 +32,8 @@ export async function getScooters(): Promise<Scooter[]> {
         speed: row.speed || '',
         price: Number(row.price || 0),
         status: row.status as any,
-        plate: row.plate || '',
-        lastMaintenance: row.last_maintenance instanceof Date ? row.last_maintenance.toISOString() : (row.last_maintenance?.toString() || ''),
         createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : (row.created_at?.toString() || ''),
         updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : (row.updated_at?.toString() || ''),
-        desc: {
-            en: row.desc_en || '',
-            fr: row.desc_fr || '',
-            ar: row.desc_ar || '',
-        },
-        features: (row.features_en && Array.isArray(row.features_en))
-            ? {
-                en: row.features_en,
-                fr: row.features_fr || [],
-                ar: row.features_ar || [],
-            }
-            : undefined,
     })) as Scooter[];
 }
 
@@ -55,7 +43,7 @@ export async function searchScooters(searchTerm: string): Promise<Scooter[]> {
     const ilikeTerm = `%${searchTerm}%`;
     const rows = await sql`
         SELECT * FROM scooters 
-        WHERE name ILIKE ${ilikeTerm} OR plate ILIKE ${ilikeTerm}
+        WHERE name ILIKE ${ilikeTerm}
         ORDER BY name ASC
     `;
 
@@ -68,22 +56,8 @@ export async function searchScooters(searchTerm: string): Promise<Scooter[]> {
         speed: row.speed,
         price: Number(row.price),
         status: row.status,
-        plate: row.plate,
-        lastMaintenance: row.last_maintenance instanceof Date ? row.last_maintenance.toISOString() : (row.last_maintenance || ''),
         createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : (row.created_at || ''),
         updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : (row.updated_at || ''),
-        desc: {
-            en: row.desc_en,
-            fr: row.desc_fr,
-            ar: row.desc_ar,
-        },
-        features: row.features_en
-            ? {
-                en: row.features_en,
-                fr: row.features_fr,
-                ar: row.features_ar,
-            }
-            : undefined,
     }));
 }
 
@@ -106,27 +80,86 @@ export async function getScooterById(id: string): Promise<Scooter | null> {
         speed: row.speed,
         price: Number(row.price),
         status: row.status,
-        plate: row.plate,
-        lastMaintenance: row.last_maintenance instanceof Date ? row.last_maintenance.toISOString() : (row.last_maintenance || ''),
         createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : (row.created_at || ''),
         updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : (row.updated_at || ''),
-        desc: {
-            en: row.desc_en,
-            fr: row.desc_fr,
-            ar: row.desc_ar,
-        },
-        features: row.features_en
-            ? {
-                en: row.features_en,
-                fr: row.features_fr,
-                ar: row.features_ar,
-            }
-            : undefined,
     };
 }
 
-// NOTE: createScooter has been intentionally removed from this management system
-// Scooter creation is no longer supported in this admin panel
+
+export async function createScooter(prevState: any, formData: FormData): Promise<ActionState> {
+    try {
+        console.log('Starting createScooter action');
+        await requireAuth();
+        console.log('Auth check passed');
+        // Generate slug from name
+        const name = formData.get('name') as string;
+        const slug = name
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+
+        // Handle image upload
+        const imageFile = formData.get('image') as File | null;
+        let imagePath = '/placeholder.webp';
+
+        if (imageFile && imageFile.size > 0) {
+            try {
+                const fs = await import('fs/promises');
+                const path = await import('path');
+                const sharp = (await import('sharp')).default;
+
+                const buffer = Buffer.from(await imageFile.arrayBuffer());
+                const webpBuffer = await sharp(buffer)
+                    .resize(800, 800, { fit: 'inside' })
+                    .webp({ quality: 80 })
+                    .toBuffer();
+
+                const publicPath = path.join(process.cwd(), 'public');
+                const fileName = `${slug.toUpperCase()}.webp`;
+                const filePath = path.join(publicPath, fileName);
+
+                await fs.writeFile(filePath, webpBuffer);
+                imagePath = `/${fileName}`;
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                return { success: false, message: 'Failed to upload image' };
+            }
+        }
+
+        const data = {
+            name: formData.get('name'),
+            engine: formData.get('engine'),
+            speed: formData.get('speed'),
+            price: formData.get('price'),
+            status: formData.get('status') || 'available',
+        };
+
+        const validated = scooterSchema.parse(data);
+
+        await sql`
+            INSERT INTO scooters (
+                slug, name, image, engine, speed, price, status
+            ) VALUES (
+                ${slug},
+                ${validated.name},
+                ${imagePath},
+                ${String(validated.engine)},
+                ${String(validated.speed)},
+                ${validated.price},
+                ${validated.status}
+            )
+        `;
+
+        revalidatePath('/dashboard/scooters');
+        revalidatePath('/dashboard');
+        return { success: true, message: 'Scooter created successfully' };
+    } catch (error) {
+        console.error('CRITICAL ERROR in createScooter:', error);
+        return handleActionError(error);
+    }
+}
 
 export async function updateStatusAction(id: string, status: 'available' | 'rented' | 'maintenance'): Promise<ActionState> {
     await requireAuth();
@@ -148,65 +181,80 @@ export async function updateScooter(id: string, formData: FormData): Promise<Act
     await requireAuth();
 
     try {
-        const rawFeaturesEn = formData.get('features.en');
-        const rawFeaturesFr = formData.get('features.fr');
-        const rawFeaturesAr = formData.get('features.ar');
+        // Handle image upload if a new image is provided
+        const imageFile = formData.get('image') as File | null;
+        let imagePath: string | null = null;
 
-        const parseFeatures = (val: FormDataEntryValue | null) => {
-            if (typeof val === 'string') {
-                // Try to parse if it's JSON array string, else split by comma
-                try {
-                    const parsed = JSON.parse(val);
-                    if (Array.isArray(parsed)) return parsed;
-                } catch (e) {
-                    // Not JSON, fall back to comma split
-                }
-                return val.split(',').map(s => s.trim()).filter(Boolean);
+        if (imageFile && imageFile.size > 0) {
+            try {
+                const fs = await import('fs/promises');
+                const path = await import('path');
+                const sharp = (await import('sharp')).default;
+
+                // Generate slug from name for the filename
+                const name = formData.get('name') as string;
+                const slug = name
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+
+                const buffer = Buffer.from(await imageFile.arrayBuffer());
+                const webpBuffer = await sharp(buffer)
+                    .resize(800, 800, { fit: 'inside' })
+                    .webp({ quality: 80 })
+                    .toBuffer();
+
+                const publicPath = path.join(process.cwd(), 'public');
+                const fileName = `${slug.toUpperCase()}.webp`;
+                const filePath = path.join(publicPath, fileName);
+
+                await fs.writeFile(filePath, webpBuffer);
+                imagePath = `/${fileName}`;
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                return { success: false, message: 'Failed to upload image' };
             }
-            return [];
-        };
+        }
 
         const data = {
             name: formData.get('name'),
             engine: formData.get('engine'),
             speed: formData.get('speed'),
             price: formData.get('price'),
-            plate: formData.get('plate'),
             status: formData.get('status'),
-            lastMaintenance: formData.get('lastMaintenance') || new Date().toISOString(),
-            desc: {
-                en: formData.get('desc.en'),
-                fr: formData.get('desc.fr'),
-                ar: formData.get('desc.ar'),
-            },
-            features: {
-                en: parseFeatures(rawFeaturesEn),
-                fr: parseFeatures(rawFeaturesFr),
-                ar: parseFeatures(rawFeaturesAr),
-            }
         };
 
         const validated = scooterSchema.parse(data);
 
-        await sql`
-            UPDATE scooters 
-            SET 
-                name = ${validated.name}, 
-                engine = ${String(validated.engine)}, 
-                speed = ${String(validated.speed)}, 
-                price = ${validated.price}, 
-                plate = ${validated.plate}, 
-                status = ${validated.status}, 
-                last_maintenance = ${validated.lastMaintenance},
-                desc_en = ${validated.desc.en},
-                desc_fr = ${validated.desc.fr},
-                desc_ar = ${validated.desc.ar},
-                features_en = ${JSON.stringify(validated.features?.en || [])}::jsonb,
-                features_fr = ${JSON.stringify(validated.features?.fr || [])}::jsonb,
-                features_ar = ${JSON.stringify(validated.features?.ar || [])}::jsonb,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = ${id}
-        `;
+        // Build update query - conditionally include image if a new one was uploaded
+        if (imagePath) {
+            await sql`
+                UPDATE scooters 
+                SET 
+                    name = ${validated.name}, 
+                    image = ${imagePath},
+                    engine = ${String(validated.engine)}, 
+                    speed = ${String(validated.speed)}, 
+                    price = ${validated.price}, 
+                    status = ${validated.status}, 
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ${id}
+            `;
+        } else {
+            await sql`
+                UPDATE scooters 
+                SET 
+                    name = ${validated.name}, 
+                    engine = ${String(validated.engine)}, 
+                    speed = ${String(validated.speed)}, 
+                    price = ${validated.price}, 
+                    status = ${validated.status}, 
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ${id}
+            `;
+        }
 
         revalidatePath('/dashboard/scooters');
         revalidatePath('/dashboard');
@@ -220,10 +268,49 @@ export async function deleteScooter(id: string): Promise<ActionState> {
     await requireAuth();
 
     try {
+        // Check if scooter has any rental records
+        const rentalCheck = await sql`
+            SELECT COUNT(*) as count FROM rentals WHERE scooter_id = ${id}
+        `;
+
+        const rentalCount = Number(rentalCheck[0]?.count || 0);
+
+        if (rentalCount > 0) {
+            return {
+                success: false,
+                message: `Cannot delete this scooter. It has ${rentalCount} rental record(s) in the system. Please set it to maintenance status instead.`
+            };
+        }
+
+        // Get the scooter image path before deleting
+        const scooter = await sql`SELECT image FROM scooters WHERE id = ${id}`;
+
         await sql`DELETE FROM scooters WHERE id = ${id}`;
 
-        revalidatePath('/scooters');
-        revalidatePath('/');
+        // Delete the image file if it exists and is not a default/placeholder
+        if (scooter.length > 0 && scooter[0].image && scooter[0].image.startsWith('/')) {
+            const imagePath = scooter[0].image;
+            // Basic check to avoid deleting system assets - assuming uploaded images are what we target
+            // and they are in public root or similar. 
+            // We'll just check if it's a file we should manage.
+            // For safety, let's only delete if it ends in .webp and isn't 'placeholder.webp' or similar if we had one.
+            if (imagePath !== '/placeholder.webp') {
+                try {
+                    const fs = await import('fs/promises');
+                    const path = await import('path');
+                    const absolutePath = path.join(process.cwd(), 'public', imagePath);
+                    await fs.unlink(absolutePath);
+                } catch (err: any) {
+                    // Ignore error if file doesn't exist, but log others
+                    if (err.code !== 'ENOENT') {
+                        console.error('Failed to delete image file:', err);
+                    }
+                }
+            }
+        }
+
+        revalidatePath('/dashboard/scooters');
+        revalidatePath('/dashboard');
         return { success: true, message: 'Scooter deleted successfully' };
     } catch (error) {
         return handleActionError(error);
@@ -341,7 +428,7 @@ export async function getRentals(): Promise<RentalWithDetails[]> {
     const rows = await sql`
         SELECT 
           r.*,
-          s.name as scooter_name, s.plate as scooter_plate,
+          s.name as scooter_name,
           c.full_name as client_name, c.phone as client_phone
         FROM rentals r
         JOIN scooters s ON r.scooter_id = s.id
@@ -356,7 +443,7 @@ export async function getActiveRentals(): Promise<RentalWithDetails[]> {
     const rows = await sql`
         SELECT 
           r.*,
-          s.name as scooter_name, s.plate as scooter_plate,
+          s.name as scooter_name,
           c.full_name as client_name, c.phone as client_phone
         FROM rentals r
         JOIN scooters s ON r.scooter_id = s.id
@@ -372,7 +459,7 @@ export async function getCompletedRentals(limit: number = 20): Promise<RentalWit
     const rows = await sql`
         SELECT 
           r.*,
-          s.name as scooter_name, s.plate as scooter_plate,
+          s.name as scooter_name,
           c.full_name as client_name, c.phone as client_phone
         FROM rentals r
         JOIN scooters s ON r.scooter_id = s.id
@@ -389,7 +476,7 @@ export async function getLatestRentals(limit: number = 5): Promise<RentalWithDet
     const rows = await sql`
         SELECT 
           r.*,
-          s.name as scooter_name, s.plate as scooter_plate,
+          s.name as scooter_name,
           c.full_name as client_name, c.phone as client_phone
         FROM rentals r
         JOIN scooters s ON r.scooter_id = s.id
@@ -418,7 +505,6 @@ function mapRowsToRentalWithDetails(rows: any[]): RentalWithDetails[] {
         scooter: {
             id: row.scooter_id.toString(),
             name: row.scooter_name,
-            plate: row.scooter_plate,
         } as any,
         client: {
             id: row.client_id.toString(),
@@ -512,7 +598,7 @@ export async function createRental(prevState: any, formData: FormData): Promise<
         }
 
         // 4. Commit Rental Record
-        await sql`
+        const rentalResult = await sql`
             INSERT INTO rentals 
             (scooter_id, client_id, start_date, end_date, total_price, amount_paid,
              payment_status, payment_method, notes)
@@ -527,7 +613,18 @@ export async function createRental(prevState: any, formData: FormData): Promise<
                 ${validatedRental.paymentMethod}, 
                 ${validatedRental.notes || null}
             )
+            RETURNING id
         `;
+
+        const newRentalId = rentalResult[0].id;
+
+        // 4b. Create Initial Payment Record
+        if (amountPaid > 0) {
+            await sql`
+                INSERT INTO rental_payments (rental_id, amount, date, notes)
+                VALUES (${newRentalId}, ${amountPaid}, CURRENT_TIMESTAMP, 'Initial Payment')
+            `;
+        }
 
         // 5. Update Asset Status
         await sql`
@@ -752,8 +849,7 @@ export async function updateExpense(id: string, formData: FormData): Promise<Act
                 category = ${validated.category},
                 amount = ${validated.amount},
                 date = ${validated.date},
-                description = ${validated.description},
-                updated_at = CURRENT_TIMESTAMP
+                description = ${validated.description}
             WHERE id = ${id}
         `;
 
@@ -775,6 +871,7 @@ export async function deleteExpense(id: string): Promise<ActionState> {
         return handleActionError(error);
     }
 }
+
 
 // ==================== DASHBOARD STATS ====================
 
@@ -820,7 +917,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
             (SELECT COALESCE(SUM(total_price), 0) FROM rentals WHERE date_trunc('month', created_at) = date_trunc('month', d)) as revenue,
             (SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE date_trunc('month', date) = date_trunc('month', d)) as expenses
         FROM generate_series(
-            date_trunc('month', CURRENT_DATE) - INTERVAL '5 months',
+            '2025-12-01'::date,
             date_trunc('month', CURRENT_DATE),
             '1 month'::interval
         ) d
@@ -832,7 +929,6 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         SELECT 
             s.id, 
             s.name, 
-            s.plate,
             COUNT(r.id) as trips,
             COALESCE(SUM(r.total_price), 0) as revenue
         FROM scooters s
@@ -882,10 +978,199 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         topScooters: topScooters.map((row: any) => ({
             id: row.id.toString(),
             name: row.name,
-            plate: row.plate,
             revenue: Number(row.revenue),
             trips: Number(row.trips)
         })),
         tips
     };
+}
+
+// ==================== RENTAL PAYMENT ACTIONS ====================
+
+import { RentalPayment } from '@/types/admin';
+
+export async function addRentalPayment(rentalId: string, amount: number, date: string, notes?: string): Promise<ActionState> {
+    await requireAuth();
+    try {
+        // 1. Insert Payment
+        await sql`
+            INSERT INTO rental_payments (rental_id, amount, date, notes)
+            VALUES (${rentalId}, ${amount}, ${date}, ${notes})
+        `;
+
+        // 2. Update Rental Totals
+        // Get current total paid
+        const payments = await sql`SELECT SUM(amount) as total FROM rental_payments WHERE rental_id = ${rentalId}`;
+        const totalPaid = Number(payments[0].total || 0);
+
+        // Get rental total price
+        const rental = await sql`SELECT total_price FROM rentals WHERE id = ${rentalId}`;
+        const totalPrice = Number(rental[0].total_price || 0);
+
+        // Determine status
+        let paymentStatus = 'pending';
+        if (totalPaid >= totalPrice) {
+            paymentStatus = 'paid';
+        } else if (totalPaid > 0) {
+            paymentStatus = 'partial';
+        }
+
+        // Update rental
+        await sql`
+            UPDATE rentals 
+            SET amount_paid = ${totalPaid}, payment_status = ${paymentStatus}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ${rentalId}
+        `;
+
+        revalidatePath('/dashboard/rentals');
+        return { success: true, message: 'Payment added successfully' };
+    } catch (error) {
+        return handleActionError(error);
+    }
+}
+
+export async function getRentalPayments(rentalId: string): Promise<RentalPayment[]> {
+    await requireAuth();
+    const rows = await sql`
+        SELECT * FROM rental_payments WHERE rental_id = ${rentalId} ORDER BY date DESC
+    `;
+    return rows.map((row: any) => ({
+        id: row.id.toString(),
+        rentalId: Number(row.rental_id),
+        amount: Number(row.amount),
+        date: row.date instanceof Date ? row.date.toISOString() : row.date,
+        notes: row.notes
+    }));
+}
+
+export async function deleteRentalPayment(paymentId: string, rentalId: string): Promise<ActionState> {
+    await requireAuth();
+    try {
+        await sql`DELETE FROM rental_payments WHERE id = ${paymentId}`;
+
+        // Update Rental Totals (same logic as add)
+        const payments = await sql`SELECT SUM(amount) as total FROM rental_payments WHERE rental_id = ${rentalId}`;
+        const totalPaid = Number(payments[0].total || 0);
+
+        const rental = await sql`SELECT total_price FROM rentals WHERE id = ${rentalId}`;
+        const totalPrice = Number(rental[0].total_price || 0);
+
+        let paymentStatus = 'pending';
+        if (totalPaid >= totalPrice) {
+            paymentStatus = 'paid';
+        } else if (totalPaid > 0) {
+            paymentStatus = 'partial';
+        }
+
+        await sql`
+            UPDATE rentals 
+            SET amount_paid = ${totalPaid}, payment_status = ${paymentStatus}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ${rentalId}
+        `;
+
+        revalidatePath('/dashboard/rentals');
+        return { success: true, message: 'Payment deleted successfully' };
+    } catch (error) {
+        return handleActionError(error);
+    }
+}
+
+// ==================== AUTHENTICATION ACTIONS ====================
+
+// Basic in-memory rate limiting
+const loginAttempts = new Map<string, { count: number; firstAttempt: number }>();
+const MAX_ATTEMPTS = 5;
+const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes
+
+function checkRateLimit(identifier: string): { blocked: boolean; timeLeft?: number } {
+    const now = Date.now();
+    const attempts = loginAttempts.get(identifier);
+
+    if (!attempts) {
+        return { blocked: false };
+    }
+
+    if (attempts.count >= MAX_ATTEMPTS) {
+        const timePassed = now - attempts.firstAttempt;
+        if (timePassed < BLOCK_DURATION) {
+            return {
+                blocked: true,
+                timeLeft: Math.ceil((BLOCK_DURATION - timePassed) / 1000 / 60)
+            };
+        }
+        // Reset after block duration
+        loginAttempts.delete(identifier);
+        return { blocked: false };
+    }
+
+    return { blocked: false };
+}
+
+function recordAttempt(identifier: string) {
+    const now = Date.now();
+    const attempts = loginAttempts.get(identifier);
+
+    if (!attempts) {
+        loginAttempts.set(identifier, { count: 1, firstAttempt: now });
+    } else {
+        loginAttempts.set(identifier, { ...attempts, count: attempts.count + 1 });
+    }
+}
+
+export async function authenticate(
+    prevState: string | undefined,
+    formData: FormData,
+) {
+    try {
+        const username = formData.get('username') as string;
+        const password = formData.get('password') as string;
+
+        if (!username || !password) {
+            return 'Please enter both username and password';
+        }
+
+        const sanitizedUsername = username.trim();
+
+        if (sanitizedUsername.length < 3) {
+            return 'Username must be at least 3 characters';
+        }
+
+        const rateLimitStatus = checkRateLimit(sanitizedUsername);
+        if (rateLimitStatus.blocked) {
+            return `Too many login attempts. Please try again in ${rateLimitStatus.timeLeft} minutes.`;
+        }
+
+        await signIn('credentials', {
+            username: sanitizedUsername,
+            password: password,
+            redirect: false,
+        });
+
+        loginAttempts.delete(sanitizedUsername);
+        return 'success';
+    } catch (error) {
+        if (error instanceof AuthError) {
+            const username = formData.get('username') as string;
+            if (username) recordAttempt(username.trim());
+
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid username or password';
+                case 'CallbackRouteError':
+                    return 'Invalid username or password';
+                default:
+                    return 'Authentication failed. Please try again';
+            }
+        }
+        throw error;
+    }
+}
+
+export async function logout() {
+    try {
+        await signOut({ redirectTo: '/' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        throw error;
+    }
 }
