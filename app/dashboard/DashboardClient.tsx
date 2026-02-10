@@ -1,11 +1,16 @@
-'use client';
-
+import dynamic from 'next/dynamic';
 import { KPICard } from '@/components/admin/KPICard';
 import { formatMAD, isOverdue, formatDate } from '@/lib/utils/currency';
 import { TrendingUp, Calendar, AlertTriangle, ChevronRight, Activity, Wallet, PieChart } from 'lucide-react';
 import Link from 'next/link';
-import AnalyticsChart from './components/AnalyticsChart';
-import TopScooters from './components/TopScooters';
+
+const AnalyticsChart = dynamic(() => import('./components/AnalyticsChart'), {
+    loading: () => <div className="h-[300px] bg-white/5 animate-pulse rounded-2xl" />,
+    ssr: false
+});
+const TopScooters = dynamic(() => import('./components/TopScooters'), {
+    loading: () => <div className="h-[300px] bg-white/5 animate-pulse rounded-2xl" />,
+});
 import SmartTips from './components/SmartTips';
 
 export default function DashboardClient({

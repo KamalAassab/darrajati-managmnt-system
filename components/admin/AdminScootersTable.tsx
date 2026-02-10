@@ -5,6 +5,7 @@ import { Scooter } from '@/types/admin';
 import { updateStatusAction, deleteScooter } from '@/app/actions';
 import { formatMAD } from '@/lib/utils/currency';
 import { Trash2, Search, Filter, Hash, MoreHorizontal, Settings2, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ScooterEditModal } from './ScooterEditModal';
 import { StatusSelector } from './StatusSelector';
@@ -231,10 +232,12 @@ export function AdminScootersTable({ scooters, onEdit }: AdminScootersTableProps
                         {/* Image Section (Expands to fill available space) */}
                         <div className="relative flex-1 bg-gradient-to-b from-white/5 to-transparent p-6 flex items-center justify-center overflow-hidden">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                            <img
+                            <Image
                                 src={scooter.image}
                                 alt={scooter.name}
-                                className="w-[100%] h-[100%] object-contain drop-shadow-2xl z-10 img-premium"
+                                fill
+                                className="object-contain drop-shadow-2xl z-10 img-premium"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                         </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
@@ -81,11 +82,15 @@ export function AdminSidebar({ overdueRentals = [], isCollapsed, onToggle, isMob
                     <Link href="/dashboard" prefetch={true} className="block" onClick={onMobileClose}>
                         {isCollapsed ? (
                             <>
-                                <img
-                                    src="/favicon.svg"
-                                    alt="Darrajati"
-                                    className="w-10 h-10 hidden md:block"
-                                />
+                                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10">
+                                    <Image
+                                        src="/avatar-placeholder.png"
+                                        alt="User"
+                                        fill
+                                        className="object-cover"
+                                        sizes="40px"
+                                    />
+                                </div>
                                 <h1 className="text-3xl text-white uppercase leading-none md:hidden">
                                     Darrajati <span className="text-orange text-glow-orange block text-xl">Admin Panel</span>
                                 </h1>
