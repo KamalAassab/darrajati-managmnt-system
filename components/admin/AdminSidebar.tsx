@@ -57,7 +57,7 @@ export function AdminSidebar({ overdueRentals = [], isCollapsed, onToggle, isMob
                 />
             )}
 
-            <aside className={sidebarClasses}>
+            <aside suppressHydrationWarning className={sidebarClasses}>
                 <div className={`relative transition-all duration-300 ${isCollapsed ? 'p-4 py-6 flex flex-col items-center justify-center' : 'p-8 pb-4'}`}>
                     <Link href="/dashboard" prefetch={true} className="block" onClick={onMobileClose}>
                         {isCollapsed ? (
@@ -134,7 +134,7 @@ export function AdminSidebar({ overdueRentals = [], isCollapsed, onToggle, isMob
                             className={`flex items-center gap-4 py-3.5 rounded-xl w-full text-white hover:text-red-500 hover:bg-red-500/10 transition-all duration-300 group font-semibold text-sm border border-white/10 hover:border-red-500/30 ${isCollapsed ? 'md:justify-center md:px-0' : 'px-4'}`}
                             title={isCollapsed ? 'Logout' : ''}
                         >
-                            <div className="w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <div suppressHydrationWarning className="w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <LogOut className="w-4 h-4" />
                             </div>
                             <span className={isCollapsed ? 'md:hidden' : ''}>Logout</span>

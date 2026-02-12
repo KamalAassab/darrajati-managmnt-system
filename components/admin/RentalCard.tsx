@@ -71,14 +71,14 @@ export function RentalCard({ rental, onPayment }: RentalCardProps) {
             </div>
 
             {/* Client & Info */}
-            <div className="p-5 space-y-4 flex-1">
+            <div className="p-4 md:p-5 space-y-4 flex-1">
                 <div>
-                    <h3 className="text-2xl font-black font-outfit text-white uppercase tracking-tighter leading-tight truncate group-hover/rental:text-primary transition-colors">
+                    <h3 className="text-lg md:text-2xl font-black font-outfit text-white uppercase tracking-tighter leading-tight truncate group-hover/rental:text-primary transition-colors">
                         {rental.client.fullName}
                     </h3>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
                     {/* Scooter Info Card */}
                     <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 flex items-center justify-between group/scooter transition-colors hover:bg-white/[0.05]">
                         <div className="flex items-center gap-3">
@@ -107,11 +107,11 @@ export function RentalCard({ rental, onPayment }: RentalCardProps) {
 
                 {/* Payment Progress */}
                 <div className="space-y-2">
-                    <div className="flex justify-between items-end">
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Payment Progress</span>
-                        <div className="text-right">
-                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Remaining: </span>
-                            <span className="text-xs font-price text-[#ea6819] font-bold">{formatMAD(remaining)}</span>
+                    <div className="flex justify-between items-end gap-2">
+                        <span className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase tracking-widest truncate">Payment Progress</span>
+                        <div className="text-right shrink-0">
+                            <span className="text-[9px] md:text-[10px] font-bold text-white/40 uppercase tracking-widest">Rem: </span>
+                            <span className="text-[10px] md:text-xs font-price text-[#ea6819] font-bold">{formatMAD(remaining)}</span>
                         </div>
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden p-[1px] border border-white/10">

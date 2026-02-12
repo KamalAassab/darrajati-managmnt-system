@@ -118,28 +118,28 @@ export function AdminScootersTable({ scooters, onEdit }: AdminScootersTableProps
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Filters */}
-            <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between relative z-50 mb-6">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
                 {/* Filter Tabs */}
-                <div className="flex p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl w-full md:w-auto overflow-x-auto no-scrollbar shadow-xl shadow-black/5">
+                <div className="flex flex-wrap md:flex-nowrap p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl w-full md:w-auto shadow-xl shadow-black/5 gap-1">
                     {['all', 'available', 'rented', 'maintenance'].map((status) => (
                         <button
                             key={status}
                             onClick={() => setStatusFilter(status)}
                             className={`
-                                flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap
+                                flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl text-[10px] md:text-xs font-bold transition-all uppercase tracking-tight
                                 ${statusFilter === status
-                                    ? status === 'available' ? 'bg-green-500 text-white shadow-lg shadow-green-500/20 scale-[1.02]'
-                                        : status === 'rented' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20 scale-[1.02]'
-                                            : status === 'maintenance' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20 scale-[1.02]'
-                                                : 'bg-white text-black shadow-lg scale-[1.02]'
+                                    ? status === 'available' ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
+                                        : status === 'rented' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                                            : status === 'maintenance' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                                                : 'bg-white text-black shadow-lg'
                                     : 'text-white/50 hover:text-white hover:bg-white/5'}
                             `}
                         >
-                            {status === 'all' && <Filter className={`w-3.5 h-3.5 ${statusFilter !== 'all' ? 'text-white/40' : 'text-black/60'}`} />}
-                            {status === 'available' && <CheckCircle2 className={`w-3.5 h-3.5 ${statusFilter !== 'available' ? 'text-green-500/50' : 'text-white'}`} />}
-                            {status === 'rented' && <Bike className={`w-3.5 h-3.5 ${statusFilter !== 'rented' ? 'text-blue-500/50' : 'text-white'}`} />}
-                            {status === 'maintenance' && <Wrench className={`w-3.5 h-3.5 ${statusFilter !== 'maintenance' ? 'text-red-500/50' : 'text-white'}`} />}
-                            {statusLabels[status] || status}
+                            {status === 'all' && <Filter className="w-3.5 h-3.5" />}
+                            {status === 'available' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            {status === 'rented' && <Bike className="w-3.5 h-3.5" />}
+                            {status === 'maintenance' && <Wrench className="w-3.5 h-3.5" />}
+                            <span className="whitespace-nowrap">{statusLabels[status] || status}</span>
                         </button>
                     ))}
                 </div>
@@ -169,7 +169,7 @@ export function AdminScootersTable({ scooters, onEdit }: AdminScootersTableProps
                     return (
                         <div
                             key={scooter.id}
-                            className="group relative bg-[#050505] border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_80px_-30px_rgba(255,107,0,0.4)] aspect-[4/5] flex flex-col"
+                            className="group relative bg-[#050505] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_80px_-30px_rgba(255,107,0,0.4)] aspect-auto md:aspect-[4/5] flex flex-col"
                         >
                             {/* Status Strip */}
                             {/* Status Strip Removed */
@@ -178,15 +178,15 @@ export function AdminScootersTable({ scooters, onEdit }: AdminScootersTableProps
 
                             {/* Header: ID & Actions */}
                             <div className="absolute top-6 left-6 right-6 z-30 flex justify-between items-start">
-                                <div className="flex items-center justify-center w-14 h-14 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl group-hover:border-primary/50 transition-colors shadow-xl">
-                                    <span className="font-anton text-2xl text-white tracking-wider">
+                                <div className="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl group-hover:border-primary/50 transition-colors shadow-xl">
+                                    <span className="font-anton text-lg md:text-2xl text-white tracking-wider">
                                         {String(index + 1).padStart(2, '0')}
                                     </span>
                                 </div>
 
                                 <div className="relative group/actions">
-                                    <button className="w-14 h-14 flex items-center justify-center bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 text-white/50 hover:text-white transition-all shadow-xl">
-                                        <MoreHorizontal className="w-6 h-6" />
+                                    <button className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl hover:bg-white/10 text-white/50 hover:text-white transition-all shadow-xl">
+                                        <MoreHorizontal className="w-5 h-5 md:w-6 md:h-6" />
                                     </button>
                                     <div className="absolute right-0 top-full pt-2 opacity-0 group-hover/actions:opacity-100 pointer-events-none group-hover/actions:pointer-events-auto transition-all duration-300 z-30 translate-y-2 group-hover/actions:translate-y-0">
                                         <div className="bg-[#121212] border border-white/10 p-2 rounded-2xl shadow-2xl min-w-[160px]">
@@ -207,20 +207,20 @@ export function AdminScootersTable({ scooters, onEdit }: AdminScootersTableProps
                                 </div>
                             </div>
 
-                            {/* Image Section (Expands to fill available space) */}
-                            <div className="relative flex-1 bg-gradient-to-b from-white/5 to-transparent p-6 flex items-center justify-center overflow-hidden">
+                            {/* Image Section */}
+                            <div className="relative h-48 md:flex-1 bg-gradient-to-b from-white/5 to-transparent p-6 flex items-center justify-center overflow-hidden">
                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                                 <img
                                     src={scooter.image}
                                     alt={scooter.name}
-                                    className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl z-10 img-premium"
+                                    className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl z-10 img-premium scale-110 md:scale-100"
                                 />
                             </div>
 
                             {/* Info Section - Bottom aligned */}
                             <div className="p-6 space-y-4 bg-gradient-to-t from-black via-black/90 to-transparent pt-0 mt-[-20px] relative z-20">
                                 {/* Name */}
-                                <h3 className="text-3xl font-black font-outfit text-white uppercase tracking-tighter leading-none truncate text-center drop-shadow-2xl mix-blend-screen" title={scooter.name}>
+                                <h3 className="text-xl md:text-3xl font-black font-outfit text-white uppercase tracking-tighter leading-none truncate text-center drop-shadow-2xl mix-blend-screen" title={scooter.name}>
                                     {scooter.name}
                                 </h3>
 

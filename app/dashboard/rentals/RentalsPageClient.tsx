@@ -59,19 +59,20 @@ export default function RentalsPageClient({ activeRentals, completedRentals, sco
     return (
         <div className="space-y-8 pb-20 font-outfit" suppressHydrationWarning>
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            {/* Header Area */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h1 className="text-2xl md:text-3xl text-white uppercase flex items-center gap-3 font-anton">
+                    <h1 className="text-xl md:text-3xl text-white uppercase flex items-center gap-3 font-anton">
                         <Activity className="w-6 h-6 md:w-8 md:h-8 text-primary" />
                         Rentals
                     </h1>
                 </div>
 
-                <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="flex items-center gap-4 w-full sm:w-auto">
                     {/* Create Button */}
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="bg-[#ea6819] text-white w-full md:w-auto h-12 md:h-auto px-6 py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ea6819]/90 transition-all duration-300 primary-glow font-bold uppercase tracking-tight active:scale-95 cursor-pointer shadow-lg shadow-[#ea6819]/20"
+                        className="bg-[#ea6819] text-white w-full sm:w-auto px-6 py-4 sm:py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ea6819]/90 transition-all duration-300 primary-glow font-bold uppercase tracking-tight active:scale-95 cursor-pointer shadow-lg shadow-[#ea6819]/20"
                     >
                         <Plus className="w-5 h-5" />
                         <span>Create Rental</span>
@@ -85,13 +86,13 @@ export default function RentalsPageClient({ activeRentals, completedRentals, sco
             {/* Filters & Search Bar */}
             <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between">
                 {/* Filter Tabs */}
-                <div className="flex p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl w-full md:w-auto overflow-x-auto no-scrollbar shadow-xl shadow-black/5">
+                <div className="flex flex-wrap md:flex-nowrap p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl w-full md:w-auto shadow-xl shadow-black/5 gap-1">
                     <button
                         onClick={() => setStatusFilter('all')}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap",
+                            "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all uppercase tracking-tight",
                             statusFilter === 'all'
-                                ? "bg-white text-black shadow-lg scale-[1.02]"
+                                ? "bg-white text-black shadow-lg"
                                 : "text-white/50 hover:text-white hover:bg-white/5"
                         )}
                     >
@@ -100,33 +101,35 @@ export default function RentalsPageClient({ activeRentals, completedRentals, sco
                     <button
                         onClick={() => setStatusFilter('active')}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap",
+                            "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all uppercase tracking-tight",
                             statusFilter === 'active'
-                                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20 scale-[1.02]"
+                                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
                                 : "text-white/50 hover:text-blue-400 hover:bg-blue-500/10"
                         )}
                     >
-                        <Activity className="w-4 h-4" />
-                        Active
+                        <Activity className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Active</span>
+                        <span className="inline sm:hidden">Act</span>
                         <span className={cn(
-                            "text-[9px] w-5 h-5 flex items-center justify-center rounded-full ml-1.5 font-bold transition-colors",
+                            "text-[8px] w-4 h-4 flex items-center justify-center rounded-full ml-1 font-bold transition-colors",
                             statusFilter === 'active' ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
                         )}>{activeCount}</span>
                     </button>
                     <button
                         onClick={() => setStatusFilter('overdue')}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap",
+                            "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all uppercase tracking-tight",
                             statusFilter === 'overdue'
-                                ? "bg-red-500 text-white shadow-lg shadow-red-500/20 scale-[1.02]"
+                                ? "bg-red-500 text-white shadow-lg shadow-red-500/20"
                                 : "text-white/50 hover:text-red-400 hover:bg-red-500/10"
                         )}
                     >
-                        <AlertCircle className="w-4 h-4" />
-                        Overdue
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Overdue</span>
+                        <span className="inline sm:hidden">Over</span>
                         {overdueCount > 0 && (
                             <span className={cn(
-                                "text-[9px] w-5 h-5 flex items-center justify-center rounded-full ml-1.5 font-bold transition-colors",
+                                "text-[8px] w-4 h-4 flex items-center justify-center rounded-full ml-1 font-bold transition-colors",
                                 statusFilter === 'overdue' ? "bg-white/20 text-white" : "bg-red-500/20 text-red-200"
                             )}>{overdueCount}</span>
                         )}
@@ -134,16 +137,17 @@ export default function RentalsPageClient({ activeRentals, completedRentals, sco
                     <button
                         onClick={() => setStatusFilter('completed')}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap",
+                            "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all uppercase tracking-tight",
                             statusFilter === 'completed'
-                                ? "bg-green-500 text-white shadow-lg shadow-green-500/20 scale-[1.02]"
+                                ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
                                 : "text-white/50 hover:text-green-400 hover:bg-green-500/10"
                         )}
                     >
-                        <CheckCircle2 className="w-4 h-4" />
-                        Completed
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Done</span>
+                        <span className="inline sm:hidden">Done</span>
                         <span className={cn(
-                            "text-[9px] w-5 h-5 flex items-center justify-center rounded-full ml-1.5 font-bold transition-colors",
+                            "text-[8px] w-4 h-4 flex items-center justify-center rounded-full ml-1 font-bold transition-colors",
                             statusFilter === 'completed' ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
                         )}>{completedCount}</span>
                     </button>

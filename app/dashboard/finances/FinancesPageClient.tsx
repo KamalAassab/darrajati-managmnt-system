@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createExpense, updateExpense, deleteExpense } from '@/app/actions';
 import { formatMAD } from '@/lib/utils/currency';
-import { Plus, TrendingDown, DollarSign, PieChart, Calendar, X, History, Trash2, Edit } from 'lucide-react';
+import { formatDateDisplay } from '@/lib/utils';
+import { Plus, TrendingDown, DollarSign, PieChart, Calendar, X, History, Trash2, Edit, Wrench, Fuel, Megaphone, Users, Home, ShieldCheck, Bike, Wifi, Droplets, MoreHorizontal } from 'lucide-react';
 import { Expense, DashboardStats } from '@/types/admin';
 import { ConfirmModal } from '@/components/admin/ConfirmModal';
 import { CustomSelect } from '@/components/admin/CustomSelect';
@@ -25,6 +26,20 @@ const categoryLabels: Record<string, string> = {
     wifi: 'Wifi',
     electricity_water: 'Electricity & Water',
     other: 'Other',
+};
+
+// Category icons mapping
+const categoryIcons: Record<string, any> = {
+    maintenance: Wrench,
+    fuel: Fuel,
+    advertising: Megaphone,
+    salaries: Users,
+    rent: Home,
+    assurance: ShieldCheck,
+    new_scooter: Bike,
+    wifi: Wifi,
+    electricity_water: Droplets,
+    other: MoreHorizontal,
 };
 
 export default function FinancesPageClient({ expenses, dashboardStats }: FinancesPageClientProps) {
@@ -158,44 +173,45 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
     return (
         <div className="space-y-10 font-inter pb-10">
 
-            <div className="flex justify-between items-end">
+            <div className="flex flex-row justify-between items-center gap-6">
                 <div>
-                    <h1 className="text-2xl md:text-3xl text-white uppercase flex items-center gap-3 font-anton">
+                    <h1 className="text-xl md:text-3xl text-white uppercase flex items-center gap-3 font-anton">
                         <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-[#ea6819]" />
                         Finances
                     </h1>
                 </div>
                 <button
                     onClick={() => showForm ? setShowForm(false) : handleOpenCreate()}
-                    className="bg-[#ea6819] text-white w-12 h-12 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full md:rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ea6819]/90 transition-all duration-300 primary-glow font-bold uppercase tracking-tight active:scale-95 cursor-pointer shadow-lg shadow-[#ea6819]/20"
+                    className="bg-[#ea6819] text-white px-4 py-2.5 md:px-6 md:py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ea6819]/90 transition-all duration-300 primary-glow font-bold uppercase tracking-tight active:scale-95 cursor-pointer shadow-lg shadow-[#ea6819]/20"
                 >
-                    <Plus className={`w-6 h-6 md:w-5 md:h-5 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} />
-                    <span className="hidden md:inline">{showForm ? 'Cancel' : 'Add Expense'}</span>
+                    <Plus className={`w-5 h-5 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} />
+                    <span className="hidden sm:inline">{showForm ? 'Cancel' : 'Add Expense'}</span>
+                    <span className="sm:hidden">{showForm ? 'Cancel' : 'Add'}</span>
                 </button>
             </div>
 
             {/* Financial Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
-                <div className="glass-panel rounded-2xl p-3 md:p-5 relative overflow-hidden group col-span-2 md:col-span-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                <div className="glass-panel rounded-2xl p-4 md:p-5 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-3xl rounded-full" />
-                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Total Revenue</p>
-                    <p className="text-lg md:text-2xl font-outfit font-black text-green-500 tracking-tight group-hover:scale-110 origin-left transition-transform duration-500">
+                    <p className="text-[8px] md:text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1.5">Total Revenue</p>
+                    <p className="text-xl md:text-2xl font-outfit font-black text-green-500 tracking-tight group-hover:scale-105 origin-left transition-transform duration-500">
                         {formatMAD(dashboardStats.totalRevenue)}
                     </p>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-3 md:p-5 relative overflow-hidden group">
+                <div className="glass-panel rounded-2xl p-4 md:p-5 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 blur-3xl rounded-full" />
-                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Total Expenses</p>
-                    <p className="text-lg md:text-2xl font-outfit font-black text-red-500 tracking-tight group-hover:scale-110 origin-left transition-transform duration-500">
+                    <p className="text-[8px] md:text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1.5">Total Expenses</p>
+                    <p className="text-xl md:text-2xl font-outfit font-black text-red-500 tracking-tight group-hover:scale-105 origin-left transition-transform duration-500">
                         {formatMAD(dashboardStats.totalExpenses)}
                     </p>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-3 md:p-5 relative overflow-hidden group primary-glow-border">
+                <div className="glass-panel rounded-2xl p-4 md:p-5 relative overflow-hidden group primary-glow-border">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl rounded-full" />
-                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Net Profit</p>
-                    <p className={`text-lg md:text-2xl font-outfit font-black tracking-tight group-hover:scale-110 origin-left transition-transform duration-500 ${dashboardStats.netProfit >= 0 ? 'text-primary text-glow-primary' : 'text-red-500'
+                    <p className="text-[8px] md:text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1.5">Net Profit</p>
+                    <p className={`text-xl md:text-2xl font-outfit font-black tracking-tight group-hover:scale-105 origin-left transition-transform duration-500 ${dashboardStats.netProfit >= 0 ? 'text-primary text-glow-primary' : 'text-red-500'
                         }`}>
                         {formatMAD(dashboardStats.netProfit)}
                     </p>
@@ -204,9 +220,9 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
 
             {/* Add/Edit Expense Form */}
             {showForm && (
-                <div className="glass-panel rounded-3xl p-8 primary-glow-border animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-2xl text-white uppercase">
+                <div className="glass-panel rounded-3xl p-6 md:p-8 primary-glow-border animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex justify-between items-center mb-6 md:mb-8">
+                        <h2 className="text-xl md:text-2xl text-white uppercase">
                             {editingId ? 'Edit Expense' : 'Add Expense'}
                         </h2>
                         <button onClick={() => setShowForm(false)} className="text-white/20 hover:text-white transition-colors cursor-pointer">
@@ -295,10 +311,10 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Expenses by Category */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-4 md:space-y-6">
                     <div className="flex items-center gap-3">
                         <PieChart className="w-5 h-5 text-red-500" />
-                        <h2 className="text-2xl text-white uppercase">Expenses by Category</h2>
+                        <h2 className="text-xl md:text-2xl text-white uppercase">By Category</h2>
                     </div>
 
                     <div className="glass-panel rounded-3xl p-6 space-y-4">
@@ -306,7 +322,12 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                             Object.entries(expensesByCategory).map(([category, amount]) => (
                                 <div key={category} className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/[0.08] transition-all flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500/50 group-hover:bg-red-500 transition-colors" />
+                                        <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                                            {(() => {
+                                                const Icon = categoryIcons[category] || MoreHorizontal;
+                                                return <Icon className="w-4 h-4 text-red-500" />;
+                                            })()}
+                                        </div>
                                         <p className="text-xs font-bold text-white/60 uppercase tracking-widest capitalize">{categoryLabels[category] || category}</p>
                                     </div>
                                     <p className="text-lg font-outfit font-black text-white tracking-tight">{formatMAD(amount)}</p>
@@ -344,7 +365,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                                             <td className="py-5 px-8">
                                                 <div className="flex items-center gap-3">
                                                     <Calendar className="w-3.5 h-3.5 text-white/20" />
-                                                    <span className="text-xs font-mono text-white/60 font-bold">{expense.date}</span>
+                                                    <span className="text-xs font-outfit text-white/60 font-bold">{formatDateDisplay(expense.date)}</span>
                                                 </div>
                                             </td>
                                             <td className="py-5 px-6">
@@ -352,7 +373,7 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                                                     {categoryLabels[expense.category] || expense.category}
                                                 </span>
                                             </td>
-                                            <td className="py-5 px-6 text-sm text-white/50 italic max-w-[200px] truncate" title={expense.description}>
+                                            <td className="py-5 px-6 text-sm text-white/50 font-outfit max-w-[200px] truncate" title={expense.description}>
                                                 {expense.description}
                                             </td>
                                             <td className="py-5 px-8 text-right font-outfit font-black text-red-500 tracking-tight text-lg">{formatMAD(expense.amount)}</td>
@@ -384,24 +405,24 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                         <div className="md:hidden space-y-4 p-4">
                             {expenses.slice(0, 10).map((expense) => (
                                 <div key={expense.id} className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 space-y-3">
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex items-center gap-2">
-                                            <span className="px-2 py-1 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md text-[9px] font-bold uppercase tracking-widest">
-                                                {categoryLabels[expense.category] || expense.category}
-                                            </span>
-                                            <div className="flex items-center gap-1.5 text-white/30">
-                                                <Calendar className="w-3 h-3" />
-                                                <span className="text-[10px] font-mono font-bold">{expense.date}</span>
-                                            </div>
-                                        </div>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="px-2 py-1 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md text-[9px] font-bold uppercase tracking-widest shrink-0">
+                                            {categoryLabels[expense.category] || expense.category}
+                                        </span>
                                         <span className="font-outfit font-black text-red-500 tracking-tight text-lg">
                                             {formatMAD(expense.amount)}
                                         </span>
                                     </div>
 
-                                    <p className="text-sm text-white/60 italic leading-snug">
-                                        {expense.description}
-                                    </p>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-1.5 text-white/30">
+                                            <Calendar className="w-3 h-3" />
+                                            <span className="text-[10px] font-outfit font-bold">{formatDateDisplay(expense.date)}</span>
+                                        </div>
+                                        <p className="text-sm text-white/60 font-outfit leading-snug">
+                                            {expense.description}
+                                        </p>
+                                    </div>
 
                                     <div className="flex justify-end gap-3 pt-3 border-t border-white/5">
                                         <button
@@ -431,6 +452,6 @@ export default function FinancesPageClient({ expenses, dashboardStats }: Finance
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

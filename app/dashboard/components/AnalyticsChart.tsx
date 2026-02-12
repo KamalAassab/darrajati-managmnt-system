@@ -71,8 +71,8 @@ const MonthYearDropdown = ({ prop, value, options, onChange }: { prop: string, v
                                     setIsOpen(false);
                                 }}
                                 className={`w-full text-left px-3 py-2 text-[10px] uppercase font-bold tracking-wider rounded-md transition-colors ${value === option.value
-                                        ? 'bg-[#ea6819] text-white shadow-lg'
-                                        : 'text-white/70 hover:bg-[#ea6819]/10 hover:text-[#ea6819]'
+                                    ? 'bg-[#ea6819] text-white shadow-lg'
+                                    : 'text-white/70 hover:bg-[#ea6819]/10 hover:text-[#ea6819]'
                                     }`}
                             >
                                 {option.label}
@@ -91,6 +91,14 @@ export default function AnalyticsChart({ data: initialData }: { data: any[] }) {
     const [filterMode, setFilterMode] = useState<'all' | 'month'>('all');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Initialize with props data
     useEffect(() => {
@@ -141,19 +149,21 @@ export default function AnalyticsChart({ data: initialData }: { data: any[] }) {
     const years = [2026, 2027, 2028, 2029, 2030];
 
     return (
-        <div className="glass-panel rounded-3xl p-6 border-white/[0.03] relative overflow-hidden group">
-            {/* Background Glow Effect */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        <div className="glass-panel rounded-3xl p-4 md:p-6 border-white/[0.03] relative group">
+            {/* Background Glow Effect - Scoped with its own overflow container */}
+            <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+            </div>
 
-            <div className="flex flex-col xl:flex-row justify-between xl:items-center gap-6 mb-8 relative z-10">
-                <div className="flex flex-col gap-2">
-                    <h3 className="text-2xl text-white uppercase font-bold flex items-center gap-3">
+            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-8 relative z-10">
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-xl md:text-2xl text-white uppercase font-bold flex items-center gap-3">
                         Financial Analysis
                         {isPending && <span className="text-xs text-white/30 animate-pulse font-normal">Updating...</span>}
                     </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         {/* Filter Mode Toggle */}
-                        <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                        <div className="flex bg-black/40 p-1 rounded-lg border border-white/5 w-fit">
                             <button
                                 onClick={() => {
                                     setFilterMode('all');
@@ -186,21 +196,23 @@ export default function AnalyticsChart({ data: initialData }: { data: any[] }) {
 
                         {/* Custom Month/Year Selectors */}
                         {filterMode === 'month' && (
-                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
+                            <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300 py-1">
                                 <MonthYearDropdown prop="month" value={selectedMonth} options={months.map((m, i) => ({ value: i + 1, label: m }))} onChange={(m) => {
                                     setSelectedMonth(m);
                                     handleFilterChange('month', m, selectedYear);
                                 }} />
-                                <MonthYearDropdown prop="year" value={selectedYear} options={years.map(y => ({ value: y, label: y.toString() }))} onChange={(y) => {
-                                    setSelectedYear(y);
-                                    handleFilterChange('month', selectedMonth, y);
-                                }} />
+                                <div className="min-w-[80px]">
+                                    <MonthYearDropdown prop="year" value={selectedYear} options={years.map(y => ({ value: y, label: y.toString() }))} onChange={(y) => {
+                                        setSelectedYear(y);
+                                        handleFilterChange('month', selectedMonth, y);
+                                    }} />
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="flex gap-6">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
                         <span className="text-[10px] uppercase font-bold tracking-widest text-white/40">Revenue</span>
@@ -216,9 +228,9 @@ export default function AnalyticsChart({ data: initialData }: { data: any[] }) {
                 </div>
             </div>
 
-            <div className="h-[350px] w-full">
+            <div className={`${isMobile ? 'h-[280px]' : 'h-[350px]'} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
+                    <AreaChart data={chartData} margin={{ top: 20, right: isMobile ? 5 : 20, left: isMobile ? -20 : 10, bottom: 20 }}>
                         <defs>
                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
@@ -246,13 +258,16 @@ export default function AnalyticsChart({ data: initialData }: { data: any[] }) {
                         />
                         <YAxis
                             stroke="rgba(255,255,255,0.1)"
-                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'var(--font-outfit)', fontWeight: 500 }}
+                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: isMobile ? 8 : 10, fontFamily: 'var(--font-outfit)', fontWeight: 500 }}
                             tickLine={false}
                             axisLine={false}
-                            width={100}
-                            domain={[0, 20000]}
-                            ticks={[0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000]}
-                            tickFormatter={(value) => value === 0 ? '0 MAD' : `${value} MAD`}
+                            width={isMobile ? 50 : 80}
+                            domain={[0, yAxisMax]}
+                            tickFormatter={(value) => {
+                                if (value === 0) return '0';
+                                if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+                                return value.toString();
+                            }}
                         />
                         <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                         <Area

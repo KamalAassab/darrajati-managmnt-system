@@ -22,19 +22,19 @@ export default function ScootersPageClient({ initialScooters }: { initialScooter
 
     return (
         <div className="space-y-10 font-outfit">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl md:text-3xl text-white uppercase flex items-center gap-3 font-anton">
+                    <h1 className="text-xl md:text-3xl text-white uppercase flex items-center gap-3 font-anton">
                         <Bike className="w-6 h-6 md:w-8 md:h-8 text-[#ea6819]" />
                         Scooters Management
                     </h1>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-[#ea6819] text-white w-12 h-12 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full md:rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ea6819]/90 transition-all duration-300 primary-glow font-bold uppercase tracking-tight active:scale-95 cursor-pointer shadow-lg shadow-[#ea6819]/20"
+                    className="bg-[#ea6819] text-white w-full sm:w-auto px-6 py-4 sm:py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ea6819]/90 transition-all duration-300 primary-glow font-bold uppercase tracking-tight active:scale-95 cursor-pointer shadow-lg shadow-[#ea6819]/20"
                 >
-                    <Plus className="w-6 h-6 md:w-5 md:h-5" />
-                    <span className="hidden md:inline">Add New Scooter</span>
+                    <Plus className="w-5 h-5" />
+                    <span>Add New Scooter</span>
                 </button>
             </div>
 
