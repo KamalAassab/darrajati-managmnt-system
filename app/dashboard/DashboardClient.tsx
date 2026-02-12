@@ -6,6 +6,7 @@ import { formatMAD, isOverdue, formatDate } from '@/lib/utils/currency';
 import { TrendingUp, Calendar, AlertTriangle, ChevronRight, Activity, Wallet, PieChart } from 'lucide-react';
 import Link from 'next/link';
 
+
 const AnalyticsChart = dynamic(() => import('./components/AnalyticsChart'), {
     loading: () => <div className="h-[300px] bg-white/5 animate-pulse rounded-2xl" />,
     ssr: false
@@ -65,18 +66,12 @@ export default function DashboardClient({
             </div>
 
             {/* Analytics Section */}
-            < div className="grid grid-cols-1 lg:grid-cols-3 gap-6" >
-
+            <div className="grid grid-cols-1 gap-6">
                 {/* Main Chart */}
-                < div className="lg:col-span-2" >
+                <div className="w-full">
                     <AnalyticsChart data={analyticsData.monthlyStats} />
-                </div >
-
-                {/* Smart Tips */}
-                < div className="lg:col-span-1" >
-                    <SmartTips tips={analyticsData.tips} />
-                </div >
-            </div >
+                </div>
+            </div>
 
             {/* Bottom Grid: Top Scooters & Activity */}
             < div className="grid grid-cols-1 lg:grid-cols-3 gap-6" >

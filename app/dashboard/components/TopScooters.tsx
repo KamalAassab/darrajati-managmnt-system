@@ -53,12 +53,12 @@ export default function TopScooters({ scooters }: TopScootersProps) {
                         {/* Right: Trips + Revenue */}
                         <div className="flex items-center gap-4 flex-shrink-0">
                             <div className="text-right">
-                                <p className="text-xs font-black text-white/80">{scooter.trips}</p>
-                                <p className="text-[9px] uppercase tracking-widest text-white/30">Trips</p>
+                                <span className="block text-xs font-black text-white/80">{scooter.trips}</span>
+                                <span className="block text-[9px] uppercase tracking-widest text-white/30">Trips</span>
                             </div>
                             <div className="text-right min-w-[80px]">
-                                <p className="text-sm font-black text-primary font-outfit">{formatMAD(scooter.revenue)}</p>
-                                <p className="text-[9px] uppercase tracking-widest text-white/30">Revenue</p>
+                                <span className="block text-sm font-black text-primary font-outfit">{formatMAD(scooter.revenue)}</span>
+                                <span className="block text-[9px] uppercase tracking-widest text-white/30">Revenue</span>
                             </div>
                         </div>
                     </div>

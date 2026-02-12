@@ -13,7 +13,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
         return (
             <div className="bg-black/95 border border-white/10 rounded-2xl p-4 shadow-2xl backdrop-blur-sm">
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">{label}</p>
+                <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">{label}</div>
                 <div className="space-y-2">
                     <div className="flex items-center justify-between gap-6">
                         <div className="flex items-center gap-2">
