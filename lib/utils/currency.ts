@@ -28,14 +28,18 @@ export function formatDateShort(date: string): string {
     });
 }
 
-export function calculateRentalPrice(dailyPrice: number, startDate: string, endDate: string): number {
+export function calculateRentalPrice(dailyPrice: number, startDate: string, endDate: string, scooterName?: string): number {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
     // Calculate difference in milliseconds
     const diffTime = Math.abs(end.getTime() - start.getTime());
-    // Convert to days (ceil to ensure partial days count as full days if logic demands, usually +1 for inclusive dates)
-    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    // Convert to days (ceil to ensure partial days count as full days if logic demands)
+    // Removed +1 to match user request (14th to 16th = 2 days)
+    let days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Ensure minimum 1 day for same-day selection or very short duration
+    days = Math.max(1, days);
 
     let discount = 0;
 
@@ -51,7 +55,11 @@ export function calculateRentalPrice(dailyPrice: number, startDate: string, endD
 
     // Monthly overrides (30+ days)
     if (days >= 30) {
-        if (dailyPrice === 120) {
+        // Promo for GO SWAP FLOW
+        if (scooterName && scooterName.trim().toUpperCase() === 'GO SWAP FLOW') {
+            // 1500 MAD per month -> approx 50 MAD/day
+            finalDailyPrice = 50;
+        } else if (dailyPrice === 120) {
             finalDailyPrice = 80;
         } else if (dailyPrice === 100) {
             finalDailyPrice = 70;

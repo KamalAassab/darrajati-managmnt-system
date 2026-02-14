@@ -645,13 +645,31 @@ export async function createRental(prevState: any, formData: FormData): Promise<
             // For now: We Link to the existing client. We DO NOT update them.
 
         } else {
-            // New Client - Insert safely
-            const newClient = await sql`
-                INSERT INTO clients (full_name, document_id, phone)
-                VALUES (${validatedClient.fullName}, ${validatedClient.documentId}, ${validatedClient.phone})
-                RETURNING id
+            // Secondary Check: Lookup by Phone Number
+            // If the Document ID didn't match, maybe they are an existing client with a typo in ID,
+            // or they are using a different ID/Passport but same phone.
+            // We verify by phone to prevent duplicates.
+            const clientsByPhone = await sql`
+                SELECT id, full_name, document_id FROM clients WHERE phone = ${validatedClient.phone}
             `;
-            clientId = newClient[0].id;
+
+            if (clientsByPhone.length > 0) {
+                // Found existing client by phone
+                const existingClient = clientsByPhone[0];
+                clientId = existingClient.id;
+
+                // Optional: We could log this or update their Document ID if we were sure.
+                // For now, we link the rental to this existing client profile.
+                // This effectively "merges" the new rental into the existing client history.
+            } else {
+                // New Client - Insert safely
+                const newClient = await sql`
+                    INSERT INTO clients (full_name, document_id, phone)
+                    VALUES (${validatedClient.fullName}, ${validatedClient.documentId}, ${validatedClient.phone})
+                    RETURNING id
+                `;
+                clientId = newClient[0].id;
+            }
         }
 
         // 3. Validation & Business Logic

@@ -58,7 +58,7 @@ export function RentalFormModal({
         if (selectedScooter && startDate && endDate) {
             const scooter = scooters.find(s => s.id === selectedScooter);
             if (scooter) {
-                const price = calculateRentalPrice(scooter.price, startDate, endDate);
+                const price = calculateRentalPrice(scooter.price, startDate, endDate, scooter.name);
                 setTotalPrice(price);
                 if (!isAmountManuallyChanged) {
                     setAmountPaid(price);

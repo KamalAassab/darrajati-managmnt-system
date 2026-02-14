@@ -12,7 +12,9 @@ import {
     AlertTriangle,
     ChevronsRight,
     ChevronsLeft,
-    Settings
+    Settings,
+    Wrench,
+    UserCog
 } from 'lucide-react';
 import { logout } from '@/app/actions';
 
@@ -36,6 +38,8 @@ export function AdminSidebar({ overdueRentals = [], isCollapsed, onToggle, isMob
         { href: '/dashboard/rentals', icon: Calendar, label: 'Rentals' },
         { href: '/dashboard/finances', icon: DollarSign, label: 'Finances' },
         { href: '/dashboard/overdues', icon: AlertTriangle, label: 'Overdues', badge: overdueRentals.length > 0 ? overdueRentals.length : undefined },
+        { href: '/dashboard/vidange', icon: Wrench, label: 'Vidange' },
+        { href: '/dashboard/users', icon: UserCog, label: 'Users' },
         { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
     ];
 
