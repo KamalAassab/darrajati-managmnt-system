@@ -31,8 +31,34 @@ export function formatDateShort(date: string): string {
 export function calculateRentalPrice(dailyPrice: number, startDate: string, endDate: string): number {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return Math.round(dailyPrice * days);
+
+    // Calculate difference in milliseconds
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    // Convert to days (ceil to ensure partial days count as full days if logic demands, usually +1 for inclusive dates)
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    let discount = 0;
+
+    if (days >= 15) {
+        discount = 30;
+    } else if (days >= 7) {
+        discount = 20;
+    } else if (days >= 3) {
+        discount = 10;
+    }
+
+    let finalDailyPrice = Math.max(0, dailyPrice - discount);
+
+    // Monthly overrides (30+ days)
+    if (days >= 30) {
+        if (dailyPrice === 120) {
+            finalDailyPrice = 80;
+        } else if (dailyPrice === 100) {
+            finalDailyPrice = 70;
+        }
+    }
+
+    return Math.round(finalDailyPrice * days);
 }
 
 export function isOverdue(endDate: string): boolean {

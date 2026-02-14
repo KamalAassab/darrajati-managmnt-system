@@ -27,6 +27,7 @@ export function RentalFormModal({
     const [amountPaid, setAmountPaid] = useState(0);
     const [isAmountManuallyChanged, setIsAmountManuallyChanged] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [hasGuarantee, setHasGuarantee] = useState(false);
 
     const scooterOptions = scooters.map(s => ({
         value: s.id,
@@ -77,6 +78,13 @@ export function RentalFormModal({
         formData.set('amountPaid', amountPaid.toString());
         formData.set('paymentStatus', derivedPaymentStatus);
 
+        // Explicitly handle checkbox state
+        if (hasGuarantee) {
+            formData.set('hasGuarantee', 'on');
+        } else {
+            formData.delete('hasGuarantee');
+        }
+
         try {
             const result = await createRental(null, formData);
             if (result.success) {
@@ -88,7 +96,10 @@ export function RentalFormModal({
                 setEndDate('');
                 setTotalPrice(0);
                 setAmountPaid(0);
+                setTotalPrice(0);
+                setAmountPaid(0);
                 setIsAmountManuallyChanged(false);
+                setHasGuarantee(false);
             } else {
                 alert(`Error: ${result.message}`);
             }
@@ -202,6 +213,18 @@ export function RentalFormModal({
 
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                    <FileBadge className="w-3.5 h-3.5 text-blue-500" /> Scooter Matricule
+                                </label>
+                                <input
+                                    type="text"
+                                    name="scooterMatricule"
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-medium focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:text-white/30 text-sm"
+                                    placeholder="e.g. 12345-A-6"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
                                     <Calendar className="w-3.5 h-3.5 text-blue-500" /> Start Date
                                 </label>
                                 <input
@@ -265,17 +288,15 @@ export function RentalFormModal({
                                 />
                             </div>
 
-                            <div className="pt-1 md:col-span-2">
-                                <label className="relative flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:border-primary/50 hover:bg-white/10 transition-all cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        name="hasGuarantee"
-                                        className="peer sr-only"
-                                    />
-                                    <div className="h-5 w-5 rounded border-2 border-white/20 bg-transparent transition-all peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center">
-                                        <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 font-bold transition-opacity" />
+                            <div className="pt-1">
+                                <div
+                                    onClick={() => setHasGuarantee(!hasGuarantee)}
+                                    className={`relative flex items-center gap-4 p-4 border rounded-xl transition-all cursor-pointer group ${hasGuarantee ? 'bg-primary/10 border-primary/50' : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-primary/30'}`}
+                                >
+                                    <div className={`h-5 w-5 rounded border-2 transition-all flex items-center justify-center ${hasGuarantee ? 'border-primary bg-primary' : 'border-white/20 bg-transparent'}`}>
+                                        <Check className={`w-3.5 h-3.5 text-white font-bold transition-opacity ${hasGuarantee ? 'opacity-100' : 'opacity-0'}`} />
                                     </div>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col select-none">
                                         <span className="text-sm font-bold text-white group-hover:text-white/90 uppercase tracking-wide">
                                             Security Deposit Check
                                         </span>
@@ -283,7 +304,7 @@ export function RentalFormModal({
                                             Client provides a 1000 MAD check as guarantee
                                         </span>
                                     </div>
-                                </label>
+                                </div>
                             </div>
                         </div>
 

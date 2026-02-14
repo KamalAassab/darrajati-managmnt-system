@@ -23,6 +23,7 @@ export interface Client {
     documentId: string; // CIN or Passport
     phone: string;
     currentScooter?: string;
+    currentScooterMatricule?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -48,6 +49,7 @@ export interface Rental {
     paymentStatus: 'paid' | 'pending' | 'partial';
     paymentMethod: 'cash' | 'transfer';
     hasGuarantee?: boolean;
+    scooterMatricule?: string; // Optional for backward compatibility
     notes?: string;
     createdAt: string;
     updatedAt: string;

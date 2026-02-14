@@ -40,6 +40,7 @@ const config: Config = {
                 inter: ['var(--font-inter)', 'sans-serif'],
                 anton: ['var(--font-outfit)', 'sans-serif'], // Map legacy anton to outfit
                 alexandria: ['var(--font-outfit)', 'sans-serif'], // Map alexandria to outfit to prevent broken fonts
+                poppins: ['var(--font-poppins)', 'sans-serif'],
             },
             animation: {
                 marquee: 'marquee var(--duration) linear infinite',

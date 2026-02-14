@@ -362,7 +362,14 @@ export async function getClients(): Promise<Client[]> {
                 WHERE r.client_id = c.id AND r.status = 'active'
                 ORDER BY r.created_at DESC 
                 LIMIT 1
-            ) as current_scooter
+            ) as current_scooter,
+            (
+                SELECT r.scooter_matricule 
+                FROM rentals r 
+                WHERE r.client_id = c.id AND r.status = 'active'
+                ORDER BY r.created_at DESC 
+                LIMIT 1
+            ) as current_scooter_matricule
         FROM clients c 
         ORDER BY c.created_at DESC
     `;
@@ -373,6 +380,7 @@ export async function getClients(): Promise<Client[]> {
         documentId: row.document_id,
         phone: row.phone,
         currentScooter: row.current_scooter || undefined,
+        currentScooterMatricule: row.current_scooter_matricule || undefined,
         createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : (row.created_at || ''),
         updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : (row.updated_at || ''),
     }));
@@ -567,6 +575,7 @@ function mapRowsToRentalWithDetails(rows: any[]): RentalWithDetails[] {
         paymentStatus: row.payment_status,
         paymentMethod: row.payment_method,
         hasGuarantee: row.has_guarantee,
+        scooterMatricule: row.scooter_matricule,
         notes: row.notes,
         createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : (row.created_at || ''),
         updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : (row.updated_at || ''),
@@ -666,6 +675,7 @@ export async function createRental(prevState: any, formData: FormData): Promise<
             paymentStatus: paymentStatus,
             paymentMethod: formData.get('paymentMethod'),
             hasGuarantee: formData.get('hasGuarantee') === 'on',
+            scooterMatricule: formData.get('scooterMatricule') || undefined,
             notes: formData.get('notes') || undefined,
         };
 
@@ -702,7 +712,7 @@ export async function createRental(prevState: any, formData: FormData): Promise<
         const rentalResult = await sql`
             INSERT INTO rentals 
             (scooter_id, client_id, start_date, end_date, total_price, amount_paid,
-             payment_status, payment_method, has_guarantee, notes)
+             payment_status, payment_method, has_guarantee, scooter_matricule, notes)
             VALUES (
                 ${validatedRental.scooterId}, 
                 ${validatedRental.clientId}, 
@@ -713,6 +723,7 @@ export async function createRental(prevState: any, formData: FormData): Promise<
                 ${validatedRental.paymentStatus}, 
                 ${validatedRental.paymentMethod}, 
                 ${validatedRental.hasGuarantee || false},
+                ${validatedRental.scooterMatricule || null},
                 ${validatedRental.notes || null}
             )
             RETURNING id

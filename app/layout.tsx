@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Outfit } from 'next/font/google';
+import { Inter, Outfit, Poppins } from 'next/font/google';
 import 'flag-icons/css/flag-icons.min.css';
 import './globals.css';
 
@@ -12,6 +12,13 @@ const inter = Inter({
 const outfit = Outfit({
     subsets: ['latin'],
     variable: '--font-outfit',
+    display: 'swap',
+    weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+});
+
+const poppins = Poppins({
+    subsets: ['latin'],
+    variable: '--font-poppins',
     display: 'swap',
     weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
 });
@@ -49,7 +56,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" dir="ltr" className={`scroll-smooth ${inter.variable} ${outfit.variable}`}>
+        <html lang="en" dir="ltr" className={`scroll-smooth ${inter.variable} ${outfit.variable} ${poppins.variable}`}>
             <head>
                 {/* Fonts are now loaded via next/font/google */}
             </head>

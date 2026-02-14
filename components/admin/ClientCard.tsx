@@ -77,6 +77,13 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
                         <div>
                             <p className="text-[9px] font-bold uppercase tracking-widest text-blue-400/50 mb-0.5">Active Rental</p>
                             <p className="text-xs font-bold text-blue-100">{client.currentScooter}</p>
+                            {client.currentScooterMatricule && (
+                                <div className="mt-1">
+                                    <span className="inline-block bg-blue-950/30 border border-blue-500/20 px-1.5 py-0.5 rounded text-[10px] font-poppins text-blue-200/70 tracking-wider">
+                                        {client.currentScooterMatricule}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                         <Bike className="w-4 h-4 text-blue-400 group-hover/scooter:translate-x-1 transition-transform" />
                     </div>

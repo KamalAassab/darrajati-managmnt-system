@@ -2,7 +2,7 @@
 
 import { RentalWithDetails } from '@/types/admin';
 import { formatMAD, formatDate, formatDateShort, isOverdue } from '@/lib/utils/currency';
-import { Bike, CreditCard, ArrowUpRight } from 'lucide-react';
+import { Bike, CreditCard, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import DeleteRentalButton from '@/app/dashboard/rentals/components/DeleteRentalButton';
 import CompleteRentalButton from '@/app/dashboard/rentals/components/CompleteRentalButton';
 import RevertRentalButton from '@/app/dashboard/rentals/components/RevertRentalButton';
@@ -52,6 +52,13 @@ export function RentalCard({ rental, onPayment }: RentalCardProps) {
                         }`}>
                         {isFullyPaid ? 'Paid' : isPartial ? 'Partial' : 'Unpaid'}
                     </span>
+
+                    {rental.hasGuarantee && (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-purple-500/10 border-purple-500/20 text-purple-400">
+                            <ShieldCheck className="w-3 h-3" />
+                            Deposit
+                        </span>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -87,6 +94,13 @@ export function RentalCard({ rental, onPayment }: RentalCardProps) {
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-bold text-white tracking-wide truncate">{rental.scooter.name}</p>
+                                {rental.scooterMatricule && (
+                                    <div className="mt-1">
+                                        <span className="inline-block bg-black/40 border border-white/10 px-1.5 py-0.5 rounded text-[10px] font-poppins text-white/70 tracking-wider">
+                                            {rental.scooterMatricule}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
